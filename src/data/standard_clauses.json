@@ -1,0 +1,40 @@
+{
+    "clauses": [
+        {
+            "clause_id": "CLS001",
+            "clause_number": 1,
+            "title": "Definitions and Interpretation",
+            "text": "\"OEM\" shall mean the Original Equipment Manufacturer of the software or hardware product being supplied or resold by Softcell.\n\"EULA\" shall mean the End User License Agreement issued by the respective OEM, governing the use of their proprietary software.",
+            "category": "Definitions",
+            "metadata": {
+                "keywords": ["OEM", "EULA", "definitions"],
+                "importance": "high",
+                "variations": []
+            }
+        },
+        {
+            "clause_id": "CLS002",
+            "clause_number": 2,
+            "title": "Scope of Work",
+            "text": "To be added separately as part of Statement of Work.",
+            "category": "Scope",
+            "metadata": {
+                "keywords": ["scope", "work", "SoW"],
+                "importance": "high",
+                "variations": []
+            }
+        },
+        {
+            "clause_id": "CLS003",
+            "clause_number": 3,
+            "title": "Payment Terms",
+            "text": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail.",
+            "category": "Financial",
+            "metadata": {
+                "keywords": ["payment", "invoices", "penalty"],
+                "importance": "high",
+                "variations": []
+            }
+        }
+    ]
+} 
