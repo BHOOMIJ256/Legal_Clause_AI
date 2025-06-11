@@ -1,0 +1,572 @@
+[
+  {
+    "original_clause": "Party B shall provide parcel transportation services on highway line-haul routes based on the needs of Party A.",
+    "clause_title": "Party B shall provide parcel transportation servic...",
+    "analysis": {
+      "status": "match_found",
+      "clause_type": "Unknown",
+      "matching_clause": {
+        "clause_id": "CLS004",
+        "clause_number": 4,
+        "title": "Service Levels",
+        "text": "As per the relevant SoW.\nSoftcell does not agree to penalties unless expressly accepted in writing.",
+        "category": "Service",
+        "metadata": {
+          "keywords": [
+            "service levels",
+            "penalties",
+            "SoW"
+          ],
+          "importance": "high",
+          "variations": []
+        }
+      },
+      "similarity_score": 0.8495848178863525,
+      "differences": [
+        {
+          "type": "addition",
+          "original": "",
+          "revised": "Party B shall provide parcel transportation services on highway line-haul routes based on the needs of Party A.\n"
+        },
+        {
+          "type": "deletion",
+          "original": "As per the relevant SoW.\nSoftcell does not agree to penalties unless expressly accepted in writing.\n",
+          "revised": ""
+        }
+      ],
+      "suggested_revision": "As per the relevant SoW.\nSoftcell does not agree to penalties unless expressly accepted in writing."
+    }
+  },
+  {
+    "original_clause": "Period of transportation services: this Agreement is valid for an indefinite term. Subsequent contracts might be entered in case of special business.",
+    "clause_title": "Period of transportation services: this Agreement ...",
+    "analysis": {
+      "status": "match_found",
+      "clause_type": "Financial",
+      "matching_clause": {
+        "clause_id": "CLS013",
+        "clause_number": 13,
+        "title": "Limitation of Liability",
+        "text": "Softcell's total liability capped at 3% of fees paid in the relevant financial period.\nExcludes liability for dishonesty, fraud, personal injury, or anything non-excludable by law.",
+        "category": "Legal",
+        "metadata": {
+          "keywords": [
+            "liability",
+            "cap",
+            "exclusions"
+          ],
+          "importance": "high",
+          "variations": []
+        }
+      },
+      "similarity_score": 0.8648910522460938,
+      "differences": [
+        {
+          "type": "addition",
+          "original": "",
+          "revised": "Period of transportation services: this Agreement is valid for an indefinite term. Subsequent contracts might be entered in case of special business.\n"
+        },
+        {
+          "type": "deletion",
+          "original": "Softcell's total liability capped at 3% of fees paid in the relevant financial period.\nExcludes liability for dishonesty, fraud, personal injury, or anything non-excludable by law.\n",
+          "revised": ""
+        }
+      ],
+      "suggested_revision": "Softcell's total liability capped at 3% of fees paid in the relevant financial period.\nExcludes liability for dishonesty, fraud, personal injury, or anything non-excludable by law."
+    }
+  },
+  {
+    "original_clause": "Freight and payment method: (a) Verification of freight: Party A pays freight based on carload rate (such freight includes pick-up charges, door-to-door delivery charges and tax fees). (b) Party A shall not pay any other charges other than the freight. (c) Clearance of freight: the clearance method is based on both Parties' fund clearance arrangement and the final clearance amount is subject to actual carriage amount and EX-warehouse (\"EXW\") weight determined by Party A. Party B shall attach Party A's parcel EXW originals or copies for Party A's verification for clearance of freight.",
+    "clause_title": "Freight and payment method: (a) Verification of fr...",
+    "analysis": {
+      "status": "match_found",
+      "clause_type": "Legal",
+      "matching_clause": {
+        "clause_id": "CLS003",
+        "clause_number": 3,
+        "title": "Payment Terms",
+        "text": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail.",
+        "category": "Financial",
+        "metadata": {
+          "keywords": [
+            "payment",
+            "invoices",
+            "penalty"
+          ],
+          "importance": "high",
+          "variations": []
+        }
+      },
+      "similarity_score": 0.8214125037193298,
+      "differences": [
+        {
+          "type": "addition",
+          "original": "",
+          "revised": "Freight and payment method: (a) Verification of freight: Party A pays freight based on carload rate (such freight includes pick-up charges, door-to-door delivery charges and tax fees). (b) Party A shall not pay any other charges other than the freight. (c) Clearance of freight: the clearance method is based on both Parties' fund clearance arrangement and the final clearance amount is subject to actual carriage amount and EX-warehouse (\"EXW\") weight determined by Party A. Party B shall attach Party A's parcel EXW originals or copies for Party A's verification for clearance of freight.\n"
+        },
+        {
+          "type": "deletion",
+          "original": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail.\n",
+          "revised": ""
+        }
+      ],
+      "suggested_revision": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail."
+    }
+  },
+  {
+    "original_clause": "Transportation route, time and relevant rules (a) Transportation time: (b) Any changes to the line-haul route and time are subject to both Parties' negotiation and written supplemental clauses. (c) Party B shall have its own loading crews and the parcel shall be loaded by Party B's loading crews. (d) Drivers, loading crews and attendant crews shall be employed and remunerated by Party B. Party A shall not interfere such matter.",
+    "clause_title": "Transportation route, time and relevant rules (a) ...",
+    "analysis": {
+      "status": "match_found",
+      "clause_type": "Unknown",
+      "matching_clause": {
+        "clause_id": "CLS003",
+        "clause_number": 3,
+        "title": "Payment Terms",
+        "text": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail.",
+        "category": "Financial",
+        "metadata": {
+          "keywords": [
+            "payment",
+            "invoices",
+            "penalty"
+          ],
+          "importance": "high",
+          "variations": []
+        }
+      },
+      "similarity_score": 0.8742693662643433,
+      "differences": [
+        {
+          "type": "addition",
+          "original": "",
+          "revised": "Transportation route, time and relevant rules (a) Transportation time: (b) Any changes to the line-haul route and time are subject to both Parties' negotiation and written supplemental clauses. (c) Party B shall have its own loading crews and the parcel shall be loaded by Party B's loading crews. (d) Drivers, loading crews and attendant crews shall be employed and remunerated by Party B. Party A shall not interfere such matter.\n"
+        },
+        {
+          "type": "deletion",
+          "original": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail.\n",
+          "revised": ""
+        }
+      ],
+      "suggested_revision": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail."
+    }
+  },
+  {
+    "original_clause": "In order to guarantee rapid transfer of Party A's parcel, Party B shall strictly comply with the following obligations: (a) During the transportation, Part B shall completely comply with Party A's transportation arrangement and relevant systems. Party B shall bear any consequences and legal liability arising out of Party B's non-compliance, and Party A shall have no liability. Party A has the right to terminate this Agreement without further legal liability in the case that Party B does not comply with Party A's management and arrangement. (b) Based on the business needs, Party A can negotiate with Party B to modify the transportation route and time whenever necessary, which shall be executed by signing supplemental agreements upon consensus of both Parties. (c) Party B shall ensure the vehicles are in good conditions, the compartments are properly sealed without leakage and the vehicles are equipped with fire-fighting equipment. In the event of parcel damage resulting from leakage or fire, Party B shall indemnify at the standard rate of RMB200 per parcel, and indemnify the actual price for high-end insured parcel (or indemnify by the value of the parcel provided by arbitration department determined by Party A). (d) Party B shall have valid and legal licenses for national road transportation. In the event of loss caused to Party A by delivery delay due to vehicles detention for the lack of license, Party B shall compensate for any loss to Party A. (e) Party B shall arrive at the network partners determined by Party A according to the time and route stipulated in this Agreement, and strictly comply with the start time and end time. Unless otherwise approved by Party A, in the event of parcel transfer due to Party B's vehicle delay, Party B shall pay liquidated damages to Party A at the standard rate of RMB500 per trip on the first working day, RMB1,000 per trip on the second working day and RMB2,000 per trip on the third working day (based on the time records on the parcel transfer documents) and such liquidated damages will be deducted from the current month's freight. In the special event of changes to route and time and severe weather (or other force majeure events), Party B shall be in touch with Party A in time and record such special event on the parcel transfer documents with Party A's approval. (f) In the event of delay by vehicle malfunction or traffic accidents, Party B shall settle such malfunction or accidents within half an hour. In the event of vehicle operation failure, Party B shall notify Party A within two hours and shall manage to deliver Party A's parcel to the destination designated by the contract. (g) Party B shall provide copies of driver licenses, working licenses, occupation licenses, insurance documents, operation licenses, outsourcing contracts, tax certificates, business licenses, road transportation permits and business code licenses to Party A, and guarantee the authenticity, completeness, legality and validity of such licenses and materials. Party B's drivers shall have at least two years driving experience in large trucks and have relevant licenses. Party B shall bear any consequences and legal liability arising out of Party B's non-compliance, and Party A shall have no liability. (h) Party B shall bear any consequences and economic punishments arising out of the breach of traffic rules by Party B's drivers and other staff, and Party A shall have no liability. (i) Party B shall be responsible for driving safety. Party B shall bear any legal liability arising out of severe traffic accidents causing vehicle damage and personnel casualties, and Party A shall have no liability. Party B shall be responsible for any damages resulting from severe accidents causing Party A's personnel casualties. Party A has the right to indemnify from Party B upon advance payment of damages.",
+    "clause_title": "In order to guarantee rapid transfer of Party A's ...",
+    "analysis": {
+      "status": "match_found",
+      "clause_type": "Legal",
+      "matching_clause": {
+        "clause_id": "CLS003",
+        "clause_number": 3,
+        "title": "Payment Terms",
+        "text": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail.",
+        "category": "Financial",
+        "metadata": {
+          "keywords": [
+            "payment",
+            "invoices",
+            "penalty"
+          ],
+          "importance": "high",
+          "variations": []
+        }
+      },
+      "similarity_score": 0.809641420841217,
+      "differences": [
+        {
+          "type": "addition",
+          "original": "",
+          "revised": "In order to guarantee rapid transfer of Party A's parcel, Party B shall strictly comply with the following obligations: (a) During the transportation, Part B shall completely comply with Party A's transportation arrangement and relevant systems. Party B shall bear any consequences and legal liability arising out of Party B's non-compliance, and Party A shall have no liability. Party A has the right to terminate this Agreement without further legal liability in the case that Party B does not comply with Party A's management and arrangement. (b) Based on the business needs, Party A can negotiate with Party B to modify the transportation route and time whenever necessary, which shall be executed by signing supplemental agreements upon consensus of both Parties. (c) Party B shall ensure the vehicles are in good conditions, the compartments are properly sealed without leakage and the vehicles are equipped with fire-fighting equipment. In the event of parcel damage resulting from leakage or fire, Party B shall indemnify at the standard rate of RMB200 per parcel, and indemnify the actual price for high-end insured parcel (or indemnify by the value of the parcel provided by arbitration department determined by Party A). (d) Party B shall have valid and legal licenses for national road transportation. In the event of loss caused to Party A by delivery delay due to vehicles detention for the lack of license, Party B shall compensate for any loss to Party A. (e) Party B shall arrive at the network partners determined by Party A according to the time and route stipulated in this Agreement, and strictly comply with the start time and end time. Unless otherwise approved by Party A, in the event of parcel transfer due to Party B's vehicle delay, Party B shall pay liquidated damages to Party A at the standard rate of RMB500 per trip on the first working day, RMB1,000 per trip on the second working day and RMB2,000 per trip on the third working day (based on the time records on the parcel transfer documents) and such liquidated damages will be deducted from the current month's freight. In the special event of changes to route and time and severe weather (or other force majeure events), Party B shall be in touch with Party A in time and record such special event on the parcel transfer documents with Party A's approval. (f) In the event of delay by vehicle malfunction or traffic accidents, Party B shall settle such malfunction or accidents within half an hour. In the event of vehicle operation failure, Party B shall notify Party A within two hours and shall manage to deliver Party A's parcel to the destination designated by the contract. (g) Party B shall provide copies of driver licenses, working licenses, occupation licenses, insurance documents, operation licenses, outsourcing contracts, tax certificates, business licenses, road transportation permits and business code licenses to Party A, and guarantee the authenticity, completeness, legality and validity of such licenses and materials. Party B's drivers shall have at least two years driving experience in large trucks and have relevant licenses. Party B shall bear any consequences and legal liability arising out of Party B's non-compliance, and Party A shall have no liability. (h) Party B shall bear any consequences and economic punishments arising out of the breach of traffic rules by Party B's drivers and other staff, and Party A shall have no liability. (i) Party B shall be responsible for driving safety. Party B shall bear any legal liability arising out of severe traffic accidents causing vehicle damage and personnel casualties, and Party A shall have no liability. Party B shall be responsible for any damages resulting from severe accidents causing Party A's personnel casualties. Party A has the right to indemnify from Party B upon advance payment of damages.\n"
+        },
+        {
+          "type": "deletion",
+          "original": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail.\n",
+          "revised": ""
+        }
+      ],
+      "suggested_revision": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail."
+    }
+  },
+  {
+    "original_clause": "Party B shall purchase sufficient insurance for the transportation vehicles. The coverage of third-party liability insurance shall not be lower than RMB1 million. In addition to vehicle personnel insurance, Party B shall at least purchase injury insurance for two persons with coverage not lower than RMB500,000 per person. Party B shall bear any consequence arising out of the non-compliance of insurance purchase, and Party A shall have no liability.",
+    "clause_title": "Party B shall purchase sufficient insurance for th...",
+    "analysis": {
+      "status": "match_found",
+      "clause_type": "Unknown",
+      "matching_clause": {
+        "clause_id": "CLS003",
+        "clause_number": 3,
+        "title": "Payment Terms",
+        "text": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail.",
+        "category": "Financial",
+        "metadata": {
+          "keywords": [
+            "payment",
+            "invoices",
+            "penalty"
+          ],
+          "importance": "high",
+          "variations": []
+        }
+      },
+      "similarity_score": 0.8395220041275024,
+      "differences": [
+        {
+          "type": "addition",
+          "original": "",
+          "revised": "Party B shall purchase sufficient insurance for the transportation vehicles. The coverage of third-party liability insurance shall not be lower than RMB1 million. In addition to vehicle personnel insurance, Party B shall at least purchase injury insurance for two persons with coverage not lower than RMB500,000 per person. Party B shall bear any consequence arising out of the non-compliance of insurance purchase, and Party A shall have no liability.\n"
+        },
+        {
+          "type": "deletion",
+          "original": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail.\n",
+          "revised": ""
+        }
+      ],
+      "suggested_revision": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail."
+    }
+  },
+  {
+    "original_clause": "Any parcel damage resulting from the fault of Party B's employees shall be compensated by Party B in accordance with Party A's relevant rules. Party B shall be responsible for all of Party A's economic loss and relevant liquidated damages arising out of any theft and disposal of stolen goods conducted by Party B's personnel. Such payment shall be deducted from the current month's freight and be topped up by Party B in case of inadequacy. The personnel breaching the rules shall be dismissed by Party B.",
+    "clause_title": "Any parcel damage resulting from the fault of Part...",
+    "analysis": {
+      "status": "match_found",
+      "clause_type": "Financial",
+      "matching_clause": {
+        "clause_id": "CLS003",
+        "clause_number": 3,
+        "title": "Payment Terms",
+        "text": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail.",
+        "category": "Financial",
+        "metadata": {
+          "keywords": [
+            "payment",
+            "invoices",
+            "penalty"
+          ],
+          "importance": "high",
+          "variations": []
+        }
+      },
+      "similarity_score": 0.8748171329498291,
+      "differences": [
+        {
+          "type": "addition",
+          "original": "",
+          "revised": "Any parcel damage resulting from the fault of Party B's employees shall be compensated by Party B in accordance with Party A's relevant rules. Party B shall be responsible for all of Party A's economic loss and relevant liquidated damages arising out of any theft and disposal of stolen goods conducted by Party B's personnel. Such payment shall be deducted from the current month's freight and be topped up by Party B in case of inadequacy. The personnel breaching the rules shall be dismissed by Party B.\n"
+        },
+        {
+          "type": "deletion",
+          "original": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail.\n",
+          "revised": ""
+        }
+      ],
+      "suggested_revision": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail."
+    }
+  },
+  {
+    "original_clause": "In the event the vehicle space insufficiency which causes Party A's need unable to be satisfied nor can it be adjusted to satisfy Party A's need, Party A can terminate this Agreement without any compensation.",
+    "clause_title": "In the event the vehicle space insufficiency which...",
+    "analysis": {
+      "status": "match_found",
+      "clause_type": "Legal",
+      "matching_clause": {
+        "clause_id": "CLS019",
+        "clause_number": 19,
+        "title": "Severability",
+        "text": "Invalid clauses don't affect the rest of the agreement.",
+        "category": "Legal",
+        "metadata": {
+          "keywords": [
+            "severability",
+            "invalid",
+            "agreement"
+          ],
+          "importance": "medium",
+          "variations": []
+        }
+      },
+      "similarity_score": 0.8570365309715271,
+      "differences": [
+        {
+          "type": "deletion",
+          "original": "Invalid clauses don't affect the rest of the agreement.\n",
+          "revised": ""
+        },
+        {
+          "type": "addition",
+          "original": "",
+          "revised": "In the event the vehicle space insufficiency which causes Party A's need unable to be satisfied nor can it be adjusted to satisfy Party A's need, Party A can terminate this Agreement without any compensation.\n"
+        }
+      ],
+      "suggested_revision": "Invalid clauses don't affect the rest of the agreement."
+    }
+  },
+  {
+    "original_clause": "Party A has the right to terminate this Agreement if Party B has breached the above articles in this Agreement. The termination of this Agreement shall not prejudice Party A's right to hold Party B responsible for breach of contract.",
+    "clause_title": "Party A has the right to terminate this Agreement ...",
+    "analysis": {
+      "status": "match_found",
+      "clause_type": "Legal",
+      "matching_clause": {
+        "clause_id": "CLS009",
+        "clause_number": 9,
+        "title": "Confidentiality",
+        "text": "Parties must maintain confidentiality of shared information.\nConfidentiality obligations survives for 3 years post termination.",
+        "category": "Confidentiality",
+        "metadata": {
+          "keywords": [
+            "confidentiality",
+            "information",
+            "termination"
+          ],
+          "importance": "high",
+          "variations": []
+        }
+      },
+      "similarity_score": 0.8752335906028748,
+      "differences": [
+        {
+          "type": "addition",
+          "original": "",
+          "revised": "Party A has the right to terminate this Agreement if Party B has breached the above articles in this Agreement. The termination of this Agreement shall not prejudice Party A's right to hold Party B responsible for breach of contract.\n"
+        },
+        {
+          "type": "deletion",
+          "original": "Parties must maintain confidentiality of shared information.\nConfidentiality obligations survives for 3 years post termination.\n",
+          "revised": ""
+        }
+      ],
+      "suggested_revision": "Parties must maintain confidentiality of shared information.\nConfidentiality obligations survives for 3 years post termination."
+    }
+  },
+  {
+    "original_clause": "Party B shall obtain Party A's written consent in the case the early termination of the Agreement. Party B shall pay one-month freight as liquidated damages in case of termination of the Agreement without consent. Within the contract period, Party B shall not charge the freight difference if Party A rents same-level vehicles. Party B shall also compensate Party A's other losses.",
+    "clause_title": "Party B shall obtain Party A's written consent in ...",
+    "analysis": {
+      "status": "match_found",
+      "clause_type": "Legal",
+      "matching_clause": {
+        "clause_id": "CLS003",
+        "clause_number": 3,
+        "title": "Payment Terms",
+        "text": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail.",
+        "category": "Financial",
+        "metadata": {
+          "keywords": [
+            "payment",
+            "invoices",
+            "penalty"
+          ],
+          "importance": "high",
+          "variations": []
+        }
+      },
+      "similarity_score": 0.8730277419090271,
+      "differences": [
+        {
+          "type": "addition",
+          "original": "",
+          "revised": "Party B shall obtain Party A's written consent in the case the early termination of the Agreement. Party B shall pay one-month freight as liquidated damages in case of termination of the Agreement without consent. Within the contract period, Party B shall not charge the freight difference if Party A rents same-level vehicles. Party B shall also compensate Party A's other losses.\n"
+        },
+        {
+          "type": "deletion",
+          "original": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail.\n",
+          "revised": ""
+        }
+      ],
+      "suggested_revision": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail."
+    }
+  },
+  {
+    "original_clause": "Without Party A's approval, Party B shall not transfer the carriage of goods to any third party in the designated route. Otherwise, Party A has the right to terminate this Agreement directly.",
+    "clause_title": "Without Party A's approval, Party B shall not tran...",
+    "analysis": {
+      "status": "match_found",
+      "clause_type": "Legal",
+      "matching_clause": {
+        "clause_id": "CLS004",
+        "clause_number": 4,
+        "title": "Service Levels",
+        "text": "As per the relevant SoW.\nSoftcell does not agree to penalties unless expressly accepted in writing.",
+        "category": "Service",
+        "metadata": {
+          "keywords": [
+            "service levels",
+            "penalties",
+            "SoW"
+          ],
+          "importance": "high",
+          "variations": []
+        }
+      },
+      "similarity_score": 0.8572050333023071,
+      "differences": [
+        {
+          "type": "addition",
+          "original": "",
+          "revised": "Without Party A's approval, Party B shall not transfer the carriage of goods to any third party in the designated route. Otherwise, Party A has the right to terminate this Agreement directly.\n"
+        },
+        {
+          "type": "deletion",
+          "original": "As per the relevant SoW.\nSoftcell does not agree to penalties unless expressly accepted in writing.\n",
+          "revised": ""
+        }
+      ],
+      "suggested_revision": "As per the relevant SoW.\nSoftcell does not agree to penalties unless expressly accepted in writing."
+    }
+  },
+  {
+    "original_clause": "Any dispute arising out of the execution of this Agreement, which cannot be negotiated and settled by both Parties, shall be subject to the jurisdiction of the People's Court where this Agreement is signed.",
+    "clause_title": "Any dispute arising out of the execution of this A...",
+    "analysis": {
+      "status": "match_found",
+      "clause_type": "Legal",
+      "matching_clause": {
+        "clause_id": "CLS024",
+        "clause_number": 24,
+        "title": "Compliance with Laws",
+        "text": "Each party must comply with all applicable laws and regulations.",
+        "category": "Compliance",
+        "metadata": {
+          "keywords": [
+            "compliance",
+            "laws",
+            "regulations"
+          ],
+          "importance": "high",
+          "variations": []
+        }
+      },
+      "similarity_score": 0.8479738235473633,
+      "differences": [
+        {
+          "type": "deletion",
+          "original": "Each party must comply with all applicable laws and regulations.\n",
+          "revised": ""
+        },
+        {
+          "type": "addition",
+          "original": "",
+          "revised": "Any dispute arising out of the execution of this Agreement, which cannot be negotiated and settled by both Parties, shall be subject to the jurisdiction of the People's Court where this Agreement is signed.\n"
+        }
+      ],
+      "suggested_revision": "Each party must comply with all applicable laws and regulations."
+    }
+  },
+  {
+    "original_clause": "The annex of this Agreement constitutes a part of this Agreement and has the same effect as this Agreement. Any undealt matter can be negotiated and added by both Parties.",
+    "clause_title": "The annex of this Agreement constitutes a part of ...",
+    "analysis": {
+      "status": "match_found",
+      "clause_type": "Legal",
+      "matching_clause": {
+        "clause_id": "CLS019",
+        "clause_number": 19,
+        "title": "Severability",
+        "text": "Invalid clauses don't affect the rest of the agreement.",
+        "category": "Legal",
+        "metadata": {
+          "keywords": [
+            "severability",
+            "invalid",
+            "agreement"
+          ],
+          "importance": "medium",
+          "variations": []
+        }
+      },
+      "similarity_score": 0.8688310384750366,
+      "differences": [
+        {
+          "type": "deletion",
+          "original": "Invalid clauses don't affect the rest of the agreement.\n",
+          "revised": ""
+        },
+        {
+          "type": "addition",
+          "original": "",
+          "revised": "The annex of this Agreement constitutes a part of this Agreement and has the same effect as this Agreement. Any undealt matter can be negotiated and added by both Parties.\n"
+        }
+      ],
+      "suggested_revision": "Invalid clauses don't affect the rest of the agreement."
+    }
+  },
+  {
+    "original_clause": "This Agreement takes effect upon the signatures and seals of both Parties in triplicate. Party A shall have two copies and Party B shall have one copy.",
+    "clause_title": "This Agreement takes effect upon the signatures an...",
+    "analysis": {
+      "status": "match_found",
+      "clause_type": "Legal",
+      "matching_clause": {
+        "clause_id": "CLS003",
+        "clause_number": 3,
+        "title": "Payment Terms",
+        "text": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail.",
+        "category": "Financial",
+        "metadata": {
+          "keywords": [
+            "payment",
+            "invoices",
+            "penalty"
+          ],
+          "importance": "high",
+          "variations": []
+        }
+      },
+      "similarity_score": 0.8366701602935791,
+      "differences": [
+        {
+          "type": "addition",
+          "original": "",
+          "revised": "This Agreement takes effect upon the signatures and seals of both Parties in triplicate. Party A shall have two copies and Party B shall have one copy.\n"
+        },
+        {
+          "type": "deletion",
+          "original": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail.\n",
+          "revised": ""
+        }
+      ],
+      "suggested_revision": "All invoices shall be payable within thirty (30) days from the date of receipt. Disputes must be raised within seven (7) days of receipt.\nLate payments attract a penalty of 2% per month.\nIn case of conflict, invoice terms shall prevail."
+    }
+  },
+  {
+    "original_clause": "Any different interpretation of this Agreement by both Parties is subject to final interpretation by Party A.",
+    "clause_title": "Any different interpretation of this Agreement by ...",
+    "analysis": {
+      "status": "match_found",
+      "clause_type": "Legal",
+      "matching_clause": {
+        "clause_id": "CLS019",
+        "clause_number": 19,
+        "title": "Severability",
+        "text": "Invalid clauses don't affect the rest of the agreement.",
+        "category": "Legal",
+        "metadata": {
+          "keywords": [
+            "severability",
+            "invalid",
+            "agreement"
+          ],
+          "importance": "medium",
+          "variations": []
+        }
+      },
+      "similarity_score": 0.9071274399757385,
+      "differences": [
+        {
+          "type": "deletion",
+          "original": "Invalid clauses don't affect the rest of the agreement.\n",
+          "revised": ""
+        },
+        {
+          "type": "addition",
+          "original": "",
+          "revised": "Any different interpretation of this Agreement by both Parties is subject to final interpretation by Party A.\n"
+        }
+      ],
+      "suggested_revision": "Invalid clauses don't affect the rest of the agreement."
+    }
+  }
+]
