@@ -1,6 +1,7 @@
 import re
 from typing import List, Dict, Optional
 import spacy
+import datetime
 
 class DocumentProcessor:
     def __init__(self):
@@ -25,34 +26,151 @@ class DocumentProcessor:
             'liability': ['liable', 'liability', 'indemnify', 'indemnification']
         }
     
-    def segment_document(self, text: str) -> List[Dict]:
+    def process_document(self, text: str) -> List[Dict]:
         """
-        Segment a document into individual clauses with improved extraction.
+        Process a document and return structured clause data.
         
         Args:
             text (str): The document text to process
             
         Returns:
-            List[Dict]: List of dictionaries containing clause information
+            List[Dict]: List of clauses with their metadata
         """
-        # Clean the text
-        text = self._clean_text(text)
+        if not isinstance(text, str):
+            raise ValueError(f"Text must be a string, got {type(text)}")
+            
+        # Split text into clauses
+        clauses = self.segment_document(text)
+        print(f"Segmented document into {len(clauses)} clauses")
         
-        # Find all clauses using multiple patterns
+        # Process each clause
+        processed_clauses = []
+        for i, clause in enumerate(clauses, 1):
+            try:
+                # Ensure text is a string
+                clause_text = str(clause.get('text', '')).strip()
+                if not clause_text:
+                    print(f"Skipping empty clause {i}")
+                    continue
+                    
+                # Create properly formatted clause dictionary
+                processed_clause = {
+                    'title': str(clause.get('title', '')),
+                    'text': clause_text,  # This is the key field that ClauseAnalyzer expects
+                    'type': self.identify_clause_type(clause_text),
+                    'key_terms': self.extract_key_terms(clause_text)
+                }
+                
+                # Validate the clause structure
+                if not isinstance(processed_clause['text'], str):
+                    print(f"Invalid text type in clause {i}, skipping")
+                    continue
+                    
+                processed_clauses.append(processed_clause)
+                print(f"Processed clause {i}: {processed_clause['title'][:50]}...")
+                print(f"Clause structure: {processed_clause.keys()}")
+            except Exception as e:
+                print(f"Error processing clause {i}: {str(e)}")
+                continue
+        
+        print(f"Successfully processed {len(processed_clauses)} clauses")
+        return processed_clauses
+    
+    def segment_document(self, text: str) -> List[Dict]:
+        """
+        Segment document into clauses.
+        
+        Args:
+            text (str): Document text
+            
+        Returns:
+            List[Dict]: List of clauses with titles and text
+        """
+        # Split text into paragraphs
+        paragraphs = text.split('\n\n')
+        
         clauses = []
-        for pattern in self.clause_patterns:
-            matches = re.finditer(pattern, text, re.DOTALL)
-            for match in matches:
-                clause_text = match.group(1).strip()
-                if clause_text and self._is_valid_clause(clause_text):
-                    clause_info = self._process_clause(clause_text)
-                    if clause_info:
-                        clauses.append(clause_info)
+        current_title = ""
+        current_text = []
         
-        # Remove duplicates and sort by position
-        clauses = self._deduplicate_clauses(clauses)
+        for para in paragraphs:
+            para = para.strip()
+            if not para:
+                continue
+                
+            # Check if paragraph is a title
+            if self.is_title(para):
+                # Save previous clause if exists
+                if current_text:
+                    clauses.append({
+                        'title': current_title,
+                        'text': '\n'.join(current_text)
+                    })
+                current_title = para
+                current_text = []
+            else:
+                current_text.append(para)
+        
+        # Add last clause
+        if current_text:
+            clauses.append({
+                'title': current_title,
+                'text': '\n'.join(current_text)
+            })
         
         return clauses
+    
+    def is_title(self, text: str) -> bool:
+        """Check if text is likely a clause title."""
+        # Check for common title patterns
+        title_patterns = [
+            r'^\d+\.',  # Numbered sections
+            r'^[A-Z][A-Z\s]+:',  # All caps followed by colon
+            r'^[A-Z][a-z]+(\s+[A-Z][a-z]+)*:',  # Title case followed by colon
+        ]
+        
+        return any(re.match(pattern, text) for pattern in title_patterns)
+    
+    def identify_clause_type(self, text: str) -> str:
+        """Identify the type of clause based on content."""
+        # Common clause types and their keywords
+        clause_types = {
+            'definition': ['means', 'defined as', 'refers to'],
+            'obligation': ['shall', 'must', 'will', 'agree to'],
+            'prohibition': ['shall not', 'must not', 'may not'],
+            'termination': ['terminate', 'termination', 'end'],
+            'payment': ['payment', 'fee', 'cost', 'price'],
+            'liability': ['liability', 'damages', 'indemnify'],
+            'confidentiality': ['confidential', 'secret', 'proprietary'],
+            'default': ['default', 'breach', 'violation']
+        }
+        
+        text_lower = text.lower()
+        for clause_type, keywords in clause_types.items():
+            if any(keyword in text_lower for keyword in keywords):
+                return clause_type
+        
+        return 'other'
+    
+    def extract_key_terms(self, text: str) -> List[str]:
+        """Extract key terms from text using spaCy."""
+        doc = self.nlp(text)
+        key_terms = []
+        
+        # Add named entities
+        for ent in doc.ents:
+            key_terms.append(ent.text)
+        
+        # Add noun phrases
+        for chunk in doc.noun_chunks:
+            if not chunk.text.lower() in ['the', 'a', 'an']:
+                key_terms.append(chunk.text)
+        
+        return list(set(key_terms))
+    
+    def get_timestamp(self) -> str:
+        """Get current timestamp."""
+        return datetime.datetime.now().isoformat()
     
     def _clean_text(self, text: str) -> str:
         """

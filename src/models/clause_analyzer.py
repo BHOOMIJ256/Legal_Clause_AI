@@ -94,8 +94,36 @@ class ClauseAnalyzer:
         doc = self.nlp(text)
         return [token.text for token in doc if token.pos_ in ['NOUN', 'PROPN'] and not token.is_stop]
 
-    def analyze_clause(self, clause_text: str, clause_title: str = "") -> Dict[str, Any]:
+    def analyze_document(self, clauses: List[Dict]) -> List[Dict]:
+        """Analyze multiple clauses in a document."""
+        results = []
+        for i, clause in enumerate(clauses, 1):
+            try:
+                print(f"Analyzing clause {i}...")
+                print(f"Clause structure: {clause.keys()}")
+                result = self.analyze_clause(clause)
+                results.append(result)
+                print(f"Successfully analyzed clause {i}")
+            except Exception as e:
+                print(f"Error analyzing clause {i}: {str(e)}")
+                continue
+        return results
+
+    def analyze_clause(self, clause: Dict) -> Dict[str, Any]:
         """Analyze a single clause using LegalBERT."""
+        if not isinstance(clause, dict):
+            raise ValueError(f"Clause must be a dictionary, got {type(clause)}")
+            
+        # Get text from either 'text' or 'original_text' key
+        clause_text = clause.get('text') or clause.get('original_text')
+        if not clause_text:
+            raise ValueError("Clause dictionary must contain either 'text' or 'original_text' key")
+            
+        if not isinstance(clause_text, str):
+            raise ValueError(f"Clause text must be a string, got {type(clause_text)}")
+            
+        clause_title = clause.get('title', '')
+        
         # Find matching standard clause
         matching_clause, similarity_score = self._find_matching_clause(clause_text)
         
@@ -105,6 +133,9 @@ class ClauseAnalyzer:
             
             # Find differences
             differences = self._find_differences(clause_text, matching_clause['text'])
+            
+            # Generate revision
+            suggested_revision = self._generate_revision(matching_clause, clause_text, differences)
             
             return {
                 "clause_title": clause_title,
@@ -117,7 +148,7 @@ class ClauseAnalyzer:
                 },
                 "key_terms": key_terms,
                 "differences": differences,
-                "suggested_revision": self._generate_revision(clause_text, matching_clause)
+                "suggested_revision": suggested_revision
             }
         else:
             return {
@@ -143,30 +174,27 @@ class ClauseAnalyzer:
         
         return differences
 
-    def _generate_revision(self, original: str, standard_clause: Dict) -> str:
-        """Generate a suggested revision based on standard clause."""
-        # Extract key terms from original
-        original_terms = set(self._extract_key_terms(original))
-        standard_terms = set(self._extract_key_terms(standard_clause['text']))
-        
-        # Keep original terms that are relevant
-        relevant_terms = original_terms.intersection(standard_terms)
-        
-        # Generate revision
+    def _generate_revision(self, standard_clause: Dict, customer_clause: str, differences: List[Dict]) -> str:
+        """Generate a suggested revision based on standard clause and differences."""
         revision = standard_clause['text']
-        for term in relevant_terms:
-            if term not in revision:
-                revision += f"\nRelevant term from original: {term}"
+        
+        # Apply customer's language style where appropriate
+        customer_doc = self.nlp(customer_clause)
+        standard_doc = self.nlp(revision)
+        
+        # Keep customer's formatting and style where appropriate
+        for diff in differences:
+            if diff['type'] == 'additional_terms':
+                # Consider incorporating some of the additional terms if they're relevant
+                pass
         
         return revision
 
-    def analyze_document(self, clauses: List[Dict]) -> List[Dict]:
-        """Analyze multiple clauses in a document."""
-        return [self.analyze_clause(clause['text'], clause.get('title', '')) 
-                for clause in clauses]
-
     def preprocess_text(self, text: str) -> str:
         """Preprocess text for analysis."""
+        if not isinstance(text, str):
+            raise ValueError(f"Text must be a string, got {type(text)}")
+            
         # Convert to lowercase and remove extra whitespace
         text = text.lower().strip()
         # Remove special characters but keep important punctuation
@@ -177,6 +205,9 @@ class ClauseAnalyzer:
     
     def _identify_clause_type(self, text: str) -> str:
         """Identify the type of clause based on content."""
+        if not isinstance(text, str):
+            raise ValueError("Text must be a string")
+            
         processed_text = self.preprocess_text(text)
         key_terms = self._extract_key_terms(processed_text)
         
@@ -193,108 +224,4 @@ class ClauseAnalyzer:
         
         return best_match if best_match else "Unknown"
     
-    def find_differences(self, text1: str, text2: str) -> List[Dict]:
-        """Find differences between two texts using difflib."""
-        differences = []
-        d = difflib.Differ()
-        diff = list(d.compare(text1.splitlines(), text2.splitlines()))
-        
-        current_diff = {"type": None, "original": "", "revised": ""}
-        
-        for line in diff:
-            if line.startswith('+ '):
-                if current_diff["type"] == "addition":
-                    current_diff["revised"] += line[2:] + "\n"
-                else:
-                    if current_diff["type"] is not None:
-                        differences.append(current_diff)
-                    current_diff = {
-                        "type": "addition",
-                        "original": "",
-                        "revised": line[2:] + "\n"
-                    }
-            elif line.startswith('- '):
-                if current_diff["type"] == "deletion":
-                    current_diff["original"] += line[2:] + "\n"
-                else:
-                    if current_diff["type"] is not None:
-                        differences.append(current_diff)
-                    current_diff = {
-                        "type": "deletion",
-                        "original": line[2:] + "\n",
-                        "revised": ""
-                    }
-            elif line.startswith('? '):
-                continue
-            else:
-                if current_diff["type"] is not None:
-                    differences.append(current_diff)
-                current_diff = {"type": None, "original": "", "revised": ""}
-        
-        if current_diff["type"] is not None:
-            differences.append(current_diff)
-        
-        return differences
     
-    def _generate_revision(self, standard_clause: Dict, customer_clause: str, differences: List[Dict]) -> str:
-        """Generate a suggested revision based on standard clause and differences."""
-        revision = standard_clause['text']
-        
-        # Apply customer's language style where appropriate
-        customer_doc = self.nlp(customer_clause)
-        standard_doc = self.nlp(revision)
-        
-        # Keep customer's formatting and style where appropriate
-        for diff in differences:
-            if diff['type'] == 'additional_terms':
-                # Consider incorporating some of the additional terms if they're relevant
-                pass
-        
-        return revision
-    
-    def analyze_clause(self, customer_clause: str) -> Dict:
-        """
-        Analyze a customer clause and provide detailed analysis.
-        
-        Args:
-            customer_clause (str): The customer's clause text to analyze
-            
-        Returns:
-            Dict containing analysis results including:
-            - status: "match_found" or "no_match"
-            - clause_type: Identified type of clause
-            - matching_clause: Best matching standard clause (if found)
-            - similarity_score: Similarity score with best match
-            - differences: List of differences found
-            - suggested_revision: Suggested revision of the clause
-        """
-        # Preprocess the clause
-        processed_clause = self.preprocess_text(customer_clause)
-        
-        # Identify clause type
-        clause_type = self._identify_clause_type(processed_clause)
-        
-        # Find best matching standard clause
-        best_match, similarity_score = self.find_matching_clause(processed_clause)
-        
-        if best_match is None:
-            return {
-                "status": "no_match",
-                "message": "No matching standard clause found",
-                "clause_type": clause_type
-            }
-        
-        # Find differences
-        differences = self.find_differences(best_match['text'], customer_clause)
-        
-        # Generate suggested revision
-        suggested_revision = self._generate_revision(best_match, customer_clause, differences)
-        
-        return {
-            "status": "match_found",
-            "clause_type": clause_type,
-            "matching_clause": best_match,
-            "similarity_score": similarity_score,
-            "differences": differences,
-            "suggested_revision": suggested_revision
-        } 

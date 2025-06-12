@@ -1,76 +1,80 @@
-import json
-from utils.document_processor import DocumentProcessor
-from utils.document_handler import DocumentHandler
-from models.clause_analyzer import ClauseAnalyzer
+import os
+from typing import Dict, List, Optional
+from src.utils.document_handler import DocumentHandler
+from src.utils.document_processor import DocumentProcessor
+from src.models.clause_analyzer import ClauseAnalyzer
 
-def process_agreement(agreement_text: str = None, file_content: bytes = None, file_type: str = None):
+def process_agreement(file_content: bytes = None, file_type: str = None, agreement_text: str = None) -> Dict:
     """
-    Process and analyze an agreement.
+    Process an agreement and return analysis results.
     
     Args:
-        agreement_text (str, optional): Direct text input of the agreement
-        file_content (bytes, optional): File content as bytes if processing from a file
-        file_type (str, optional): Type of file ('pdf', 'docx', or 'txt') if processing from a file
-        
+        file_content (bytes, optional): Raw file content if processing from file
+        file_type (str, optional): Type of file ('pdf', 'docx', 'txt')
+        agreement_text (str, optional): Direct text input if not processing from file
+    
     Returns:
-        list: Analysis results for each clause
+        Dict: Analysis results
     """
-    # Initialize document processor and clause analyzer
-    doc_processor = DocumentProcessor()
-    analyzer = ClauseAnalyzer()
-    
-    # Load standard clauses
-    with open('src/data/standard_clauses.json', 'r') as f:
-        standard_clauses = json.load(f)
-    
-    # Get agreement text either from direct input or file
-    if agreement_text is None and file_content is not None:
-        doc_handler = DocumentHandler()
-        agreement_text = doc_handler.process_document(file_content, file_type)
-    elif agreement_text is None:
-        raise ValueError("Either agreement_text or file_content must be provided")
-    
-    # Segment the document into clauses
-    clauses = doc_processor.segment_document(agreement_text)
-    
-    # Analyze each clause
-    analysis_results = []
-    for clause in clauses:
-        result = analyzer.analyze_clause(clause['text'])
-        analysis_results.append({
-            'original_clause': clause['text'],
-            'clause_title': clause['title'],
-            'analysis': result
-        })
-    
-    # Print detailed analysis
-    print("\nDetailed Clause Analysis:")
-    print("=" * 80)
-    
-    for result in analysis_results:
-        print(f"\nClause Title: {result['clause_title']}")
-        print("-" * 40)
-        print(f"Original Text: {result['original_clause'][:200]}...")
-        print(f"Analysis Status: {result['analysis']['status']}")
-        print(f"Similarity Score: {result['analysis']['similarity_score']:.2f}")
+    try:
+        print("\nInitializing components...")
         
-        if result['analysis']['matching_clause']:
-            print("\nMatching Standard Clause:")
-            print(f"Title: {result['analysis']['matching_clause']['title']}")
-            print(f"Text: {result['analysis']['matching_clause']['text'][:200]}...")
+        # Check if standard clauses file exists
+        standard_clauses_path = os.path.join(os.path.dirname(__file__), "data", "transportation_standard_clauses.json")
+        if not os.path.exists(standard_clauses_path):
+            raise FileNotFoundError(f"Standard clauses file not found at: {standard_clauses_path}")
+            
+        # Initialize components
+        document_handler = DocumentHandler()
+        document_processor = DocumentProcessor()
+        clause_analyzer = ClauseAnalyzer(standard_clauses_path=standard_clauses_path)
         
-        if result['analysis']['differences']:
-            print("\nKey Differences:")
-            for diff in result['analysis']['differences']:
-                print(f"- {diff}")
+        # Get text content
+        print("Getting text content...")
+        if agreement_text:
+            if not isinstance(agreement_text, str):
+                raise ValueError(f"Agreement text must be a string, got {type(agreement_text)}")
+            text_content = agreement_text
+            print(f"Using provided agreement text ({len(text_content)} characters)")
+        elif file_content and file_type:
+            if not isinstance(file_content, bytes):
+                raise ValueError(f"File content must be bytes, got {type(file_content)}")
+            print(f"Processing file of type: {file_type}")
+            text_content = document_handler.process_document(file_content, file_type)
+            print(f"Extracted text content ({len(text_content)} characters)")
+        else:
+            raise ValueError("Either file_content and file_type, or agreement_text must be provided")
         
-        if result['analysis']['suggested_revision']:
-            print("\nSuggested Revision:")
-            print(result['analysis']['suggested_revision'])
+        if not isinstance(text_content, str):
+            raise ValueError(f"Text content must be a string, got {type(text_content)}")
+            
+        if not text_content.strip():
+            raise ValueError("No text content to process")
+            
+        # Process document
+        print("\nProcessing document...")
+        clauses = document_processor.process_document(text_content)
+        print(f"Extracted {len(clauses)} clauses")
         
-        print("=" * 80)
-    
-    return analysis_results
+        # Analyze clauses
+        print("\nAnalyzing clauses...")
+        results = clause_analyzer.analyze_document(clauses)
+        print(f"Analyzed {len(results)} clauses")
+        
+        return {
+            'clauses': results,
+            'metadata': {
+                'total_clauses': len(results),
+                'processed_at': document_processor.get_timestamp()
+            }
+        }
+        
+    except Exception as e:
+        print(f"Error in process_agreement: {str(e)}")
+        import traceback
+        print("Full error traceback:")
+        print(traceback.format_exc())
+        return None
 
 if __name__ == "__main__":
     # Example usage with direct text input

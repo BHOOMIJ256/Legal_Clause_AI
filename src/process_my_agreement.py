@@ -6,6 +6,7 @@ from typing import Dict, List, Optional
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_root)
 
+# Import from src directory
 from src.process_agreement import process_agreement
 from src.utils.document_handler import DocumentHandler
 from src.models.clause_analyzer import ClauseAnalyzer
@@ -36,17 +37,32 @@ def list_available_agreements() -> List[str]:
 def process_agreement_file(file_path: str) -> Optional[Dict]:
     """Process a single agreement file."""
     try:
+        print(f"\nReading file: {file_path}")
         # Read the file
         with open(file_path, 'rb') as f:
             file_content = f.read()
         
         # Determine file type
         file_type = file_path.split('.')[-1].lower()
+        print(f"File type: {file_type}")
+        print(f"File content type: {type(file_content)}")
+        print(f"File content length: {len(file_content)} bytes")
         
         # Process the agreement
-        return process_agreement(file_content=file_content, file_type=file_type)
+        print("Processing agreement...")
+        result = process_agreement(file_content=file_content, file_type=file_type)
+        
+        if result is None:
+            print("No results returned from process_agreement")
+            return None
+            
+        return result
+        
     except Exception as e:
-        print(f"Error processing agreement: {e}")
+        print(f"Error processing agreement: {str(e)}")
+        import traceback
+        print("Full error traceback:")
+        print(traceback.format_exc())
         return None
 
 def display_results(results: Dict):
