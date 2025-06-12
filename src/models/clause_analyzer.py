@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Any
 import spacy
 from transformers import AutoTokenizer, AutoModel
 import torch
@@ -8,51 +8,163 @@ import json
 import re
 import difflib
 from Levenshtein import ratio
+from sklearn.feature_extraction.text import TfidfVectorizer
+from difflib import SequenceMatcher
+import os
 
 class ClauseAnalyzer:
-    def __init__(self, use_bert: bool = True):
-        """
-        Initialize the ClauseAnalyzer.
-        
-        Args:
-            use_bert (bool): Whether to use BERT for semantic analysis. If False, falls back to simpler methods.
-        """
-        # Initialize spaCy for basic NLP tasks
+    def __init__(self, standard_clauses_path: str = "src/data/transportation_standard_clauses.json"):
+        """Initialize the ClauseAnalyzer with standard clauses."""
+        self.standard_clauses = self._load_standard_clauses(standard_clauses_path)
         self.nlp = spacy.load("en_core_web_sm")
         
-        # Initialize BERT if requested
-        self.use_bert = use_bert
-        if use_bert:
-            self.tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
-            self.model = AutoModel.from_pretrained('bert-base-uncased')
+        # Initialize LegalBERT
+        self.tokenizer = AutoTokenizer.from_pretrained("nlpaueb/legal-bert-base-uncased")
+        self.model = AutoModel.from_pretrained("nlpaueb/legal-bert-base-uncased")
         
-        # Load standard clauses
-        self.standard_clauses = self._load_standard_clauses()
+        # Pre-compute embeddings for standard clauses
+        self.standard_embeddings = self._compute_standard_embeddings()
         
-        # Pre-compute embeddings if using BERT
-        if use_bert:
-            self.standard_embeddings = self._compute_standard_embeddings()
-    
-    def _load_standard_clauses(self) -> Dict:
+    def _load_standard_clauses(self, file_path: str) -> List[Dict]:
         """Load standard clauses from JSON file."""
-        with open('src/data/standard_clauses.json', 'r') as f:
-            return json.load(f)
-    
+        try:
+            with open(file_path, 'r') as f:
+                return json.load(f)['clauses']
+        except Exception as e:
+            print(f"Error loading standard clauses: {e}")
+            return []
+
     def _compute_standard_embeddings(self) -> Dict[str, np.ndarray]:
-        """Pre-compute BERT embeddings for all standard clauses."""
+        """Pre-compute LegalBERT embeddings for all standard clauses."""
         embeddings = {}
-        for clause in self.standard_clauses['clauses']:
+        for clause in self.standard_clauses:
             text = f"{clause['title']} {clause['text']}"
             embeddings[clause['clause_id']] = self._get_bert_embedding(text)
         return embeddings
-    
+
     def _get_bert_embedding(self, text: str) -> np.ndarray:
-        """Get BERT embedding for a given text."""
+        """Get LegalBERT embedding for a given text."""
+        # Tokenize and prepare input
         inputs = self.tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=512)
+        
+        # Get model output
         with torch.no_grad():
             outputs = self.model(**inputs)
+        
+        # Use [CLS] token embedding as sentence representation
         return outputs.last_hidden_state[0][0].numpy()
-    
+
+    def _calculate_similarity(self, text1: str, text2: str) -> float:
+        """Calculate similarity between two texts using LegalBERT embeddings."""
+        try:
+            # Get embeddings
+            embedding1 = self._get_bert_embedding(text1)
+            embedding2 = self._get_bert_embedding(text2)
+            
+            # Calculate cosine similarity
+            similarity = cosine_similarity([embedding1], [embedding2])[0][0]
+            
+            # Apply threshold
+            return similarity if similarity > 0.6 else 0.0
+        except Exception as e:
+            print(f"Error calculating similarity: {e}")
+            return 0.0
+
+    def _find_matching_clause(self, clause_text: str) -> Tuple[Optional[Dict], float]:
+        """Find the best matching standard clause using LegalBERT embeddings."""
+        best_match = None
+        best_score = 0.0
+        
+        # Get embedding for input clause
+        input_embedding = self._get_bert_embedding(clause_text)
+        
+        # Compare with all standard clauses
+        for clause in self.standard_clauses:
+            standard_embedding = self.standard_embeddings[clause['clause_id']]
+            score = cosine_similarity([input_embedding], [standard_embedding])[0][0]
+            
+            if score > best_score:
+                best_score = score
+                best_match = clause
+        
+        return best_match, best_score
+
+    def _extract_key_terms(self, text: str) -> List[str]:
+        """Extract key terms from text using spaCy."""
+        doc = self.nlp(text)
+        return [token.text for token in doc if token.pos_ in ['NOUN', 'PROPN'] and not token.is_stop]
+
+    def analyze_clause(self, clause_text: str, clause_title: str = "") -> Dict[str, Any]:
+        """Analyze a single clause using LegalBERT."""
+        # Find matching standard clause
+        matching_clause, similarity_score = self._find_matching_clause(clause_text)
+        
+        if matching_clause and similarity_score > 0.6:
+            # Extract key terms
+            key_terms = self._extract_key_terms(clause_text)
+            
+            # Find differences
+            differences = self._find_differences(clause_text, matching_clause['text'])
+            
+            return {
+                "clause_title": clause_title,
+                "original_text": clause_text,
+                "analysis_status": "match_found",
+                "similarity_score": similarity_score,
+                "matching_standard_clause": {
+                    "title": matching_clause['title'],
+                    "text": matching_clause['text']
+                },
+                "key_terms": key_terms,
+                "differences": differences,
+                "suggested_revision": self._generate_revision(clause_text, matching_clause)
+            }
+        else:
+            return {
+                "clause_title": clause_title,
+                "original_text": clause_text,
+                "analysis_status": "no_match",
+                "similarity_score": similarity_score,
+                "key_terms": self._extract_key_terms(clause_text)
+            }
+
+    def _find_differences(self, original: str, standard: str) -> List[Dict]:
+        """Find differences between original and standard clause."""
+        matcher = SequenceMatcher(None, original, standard)
+        differences = []
+        
+        for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+            if tag != 'equal':
+                differences.append({
+                    'type': tag,
+                    'original': original[i1:i2],
+                    'revised': standard[j1:j2]
+                })
+        
+        return differences
+
+    def _generate_revision(self, original: str, standard_clause: Dict) -> str:
+        """Generate a suggested revision based on standard clause."""
+        # Extract key terms from original
+        original_terms = set(self._extract_key_terms(original))
+        standard_terms = set(self._extract_key_terms(standard_clause['text']))
+        
+        # Keep original terms that are relevant
+        relevant_terms = original_terms.intersection(standard_terms)
+        
+        # Generate revision
+        revision = standard_clause['text']
+        for term in relevant_terms:
+            if term not in revision:
+                revision += f"\nRelevant term from original: {term}"
+        
+        return revision
+
+    def analyze_document(self, clauses: List[Dict]) -> List[Dict]:
+        """Analyze multiple clauses in a document."""
+        return [self.analyze_clause(clause['text'], clause.get('title', '')) 
+                for clause in clauses]
+
     def preprocess_text(self, text: str) -> str:
         """Preprocess text for analysis."""
         # Convert to lowercase and remove extra whitespace
@@ -63,45 +175,6 @@ class ClauseAnalyzer:
         text = ' '.join(text.split())
         return text
     
-    def _extract_key_terms(self, text: str) -> List[str]:
-        """Extract key terms from text using spaCy."""
-        doc = self.nlp(text)
-        key_terms = []
-        
-        # Add named entities
-        for ent in doc.ents:
-            key_terms.append(ent.text.lower())
-        
-        # Add noun phrases
-        for chunk in doc.noun_chunks:
-            key_terms.append(chunk.text.lower())
-        
-        return list(set(key_terms))
-    
-    def calculate_similarity(self, text1: str, text2: str) -> float:
-        """Calculate similarity between two texts using either BERT or Levenshtein."""
-        if self.use_bert:
-            embedding1 = self._get_bert_embedding(text1)
-            embedding2 = self._get_bert_embedding(text2)
-            return float(cosine_similarity([embedding1], [embedding2])[0][0])
-        else:
-            text1 = self.preprocess_text(text1)
-            text2 = self.preprocess_text(text2)
-            return ratio(text1, text2)
-    
-    def find_matching_clause(self, customer_clause: str) -> Tuple[Optional[Dict], float]:
-        """Find the most similar standard clause for a given customer clause."""
-        best_match = None
-        best_score = 0.0
-        
-        for clause in self.standard_clauses['clauses']:
-            score = self.calculate_similarity(customer_clause, clause['text'])
-            if score > best_score:
-                best_score = score
-                best_match = clause
-        
-        return best_match, best_score
-    
     def _identify_clause_type(self, text: str) -> str:
         """Identify the type of clause based on content."""
         processed_text = self.preprocess_text(text)
@@ -110,7 +183,7 @@ class ClauseAnalyzer:
         best_match = None
         best_score = 0.0
         
-        for clause in self.standard_clauses['clauses']:
+        for clause in self.standard_clauses:
             category_terms = self._extract_key_terms(clause['title'] + " " + clause['text'])
             similarity = len(set(key_terms) & set(category_terms)) / len(set(key_terms) | set(category_terms))
             

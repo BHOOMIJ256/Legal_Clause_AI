@@ -1,0 +1,54 @@
+{
+    "clauses": [
+        {
+            "clause_id": "TRANS001",
+            "title": "Transportation Services",
+            "text": "The Carrier shall provide transportation services in accordance with the terms of this Agreement. Services shall include pickup, transportation, and delivery of goods as specified in the Agreement.",
+            "category": "Service",
+            "metadata": {
+                "keywords": ["transportation", "services", "carrier", "delivery"],
+                "importance": "high"
+            }
+        },
+        {
+            "clause_id": "TRANS002",
+            "title": "Payment Terms",
+            "text": "Payment shall be made within 30 days of receipt of invoice. Rates shall be as specified in the Rate Schedule attached as Appendix A. All charges are subject to applicable taxes and surcharges.",
+            "category": "Financial",
+            "metadata": {
+                "keywords": ["payment", "rates", "charges", "invoice"],
+                "importance": "high"
+            }
+        },
+        {
+            "clause_id": "TRANS003",
+            "title": "Liability and Insurance",
+            "text": "Carrier shall maintain insurance coverage as specified in Appendix B. Carrier's liability for loss or damage shall be limited to the actual value of the goods or the maximum liability specified in the Agreement, whichever is less.",
+            "category": "Legal",
+            "metadata": {
+                "keywords": ["liability", "insurance", "coverage", "damage"],
+                "importance": "high"
+            }
+        },
+        {
+            "clause_id": "TRANS004",
+            "title": "Term and Termination",
+            "text": "This Agreement shall commence on the Effective Date and continue for the Term specified. Either party may terminate with 30 days written notice. Early termination may be subject to termination charges.",
+            "category": "Term",
+            "metadata": {
+                "keywords": ["term", "termination", "notice", "effective date"],
+                "importance": "high"
+            }
+        },
+        {
+            "clause_id": "TRANS005",
+            "title": "Service Levels",
+            "text": "Carrier shall maintain service levels as specified in Appendix C. Performance metrics include delivery times, damage rates, and customer service response times.",
+            "category": "Service",
+            "metadata": {
+                "keywords": ["service levels", "performance", "metrics", "delivery"],
+                "importance": "high"
+            }
+        }
+    ]
+} 
