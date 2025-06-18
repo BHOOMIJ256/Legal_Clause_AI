@@ -18,6 +18,7 @@ difflib>=3.10.0
 # Utilities
 tqdm>=4.65.0
 python-dotenv>=1.0.0
+requests>=2.31.0
 
 # NLP and ML
 python-Levenshtein>=0.12.0

@@ -347,3 +347,4 @@ class DocumentProcessor:
         return list(unique_clauses.values()) 
     
 
+ 
