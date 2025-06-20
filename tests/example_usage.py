@@ -1,4 +1,4 @@
-from process_agreement import process_agreement
+from tests.process_agreement import process_agreement
 
 def process_document_from_file(file_path: str, file_type: str):
     """

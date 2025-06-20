@@ -6,8 +6,9 @@ from tqdm import tqdm
 import logging
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from multiprocessing import cpu_count
+import traceback
 
-from .pipeline import ClauseProcessingPipeline
+from processing.pipeline import ClauseProcessingPipeline
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -16,7 +17,7 @@ class ParallelClauseProcessor:
     def __init__(self, 
                  contracts_dir: str = "data/agreements",
                  output_dir: str = "data/processed",
-                 standard_clauses_file: str = "data/standard_clauses.json",
+                 standard_clauses_file: str = "data/raw/standard_clauses.json",
                  max_workers: int = None):
         self.contracts_dir = Path(contracts_dir)
         self.output_dir = Path(output_dir)
@@ -38,6 +39,8 @@ class ParallelClauseProcessor:
         try:
             return self.pipeline.process_contract(contract_path)
         except Exception as e:
+            logger.error(f"Error processing {contract_path}: {str(e)}")
+            logger.error(traceback.format_exc())
             return {
                 "status": "error",
                 "contract_name": contract_path.name,
@@ -46,7 +49,7 @@ class ParallelClauseProcessor:
     
     def process_all_contracts(self) -> List[Dict]:
         """Process all contracts in parallel."""
-        contract_files = list(self.contracts_dir.glob("**/*.docx"))
+        contract_files = [f for f in self.contracts_dir.glob("**/*.docx") if not f.name.startswith("._")]
         results = []
         
         logger.info(f"Found {len(contract_files)} contracts to process")

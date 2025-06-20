@@ -11,10 +11,12 @@ from Levenshtein import ratio
 from sklearn.feature_extraction.text import TfidfVectorizer
 from difflib import SequenceMatcher
 import os
+import logging
 
 class ClauseAnalyzer:
-    def __init__(self, standard_clauses_path: str = "src/data/transportation_standard_clauses.json"):
+    def __init__(self, standard_clauses_path: str = "data/raw/standard_clauses.json"):
         """Initialize the ClauseAnalyzer with standard clauses."""
+        self.logger = logging.getLogger(__name__)
         self.standard_clauses = self._load_standard_clauses(standard_clauses_path)
         self.nlp = spacy.load("en_core_web_sm")
         
@@ -25,21 +27,30 @@ class ClauseAnalyzer:
         # Pre-compute embeddings for standard clauses
         self.standard_embeddings = self._compute_standard_embeddings()
         
-    def _load_standard_clauses(self, file_path: str) -> List[Dict]:
-        """Load standard clauses from JSON file."""
-        try:
-            with open(file_path, 'r') as f:
-                return json.load(f)['clauses']
-        except Exception as e:
-            print(f"Error loading standard clauses: {e}")
-            return []
+        self.logger.info(f"Loaded {len(self.standard_clauses)} standard clauses.")
+        
+    def _load_standard_clauses(self, file_path: str):
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        # If the file is a dict with 'clauses', use that list
+        if isinstance(data, dict) and 'clauses' in data:
+            return data['clauses']
+        # If it's already a list, return as is
+        elif isinstance(data, list):
+            return data
+        else:
+            raise ValueError("standard_clauses.json format not recognized")
 
     def _compute_standard_embeddings(self) -> Dict[str, np.ndarray]:
         """Pre-compute LegalBERT embeddings for all standard clauses."""
         embeddings = {}
         for clause in self.standard_clauses:
-            text = f"{clause['title']} {clause['text']}"
-            embeddings[clause['clause_id']] = self._get_bert_embedding(text)
+            clause_id = clause.get('clause_id') or clause.get('id')
+            if not clause_id:
+                self.logger.warning(f"Clause missing 'clause_id' or 'id': {clause.get('title', 'No Title')}")
+                continue
+            text = clause.get('text', '')
+            embeddings[clause_id] = self._get_bert_embedding(text)
         return embeddings
 
     def _get_bert_embedding(self, text: str) -> np.ndarray:
@@ -205,23 +216,33 @@ class ClauseAnalyzer:
     
     def _identify_clause_type(self, text: str) -> str:
         """Identify the type of clause based on content."""
-        if not isinstance(text, str):
-            raise ValueError("Text must be a string")
-            
-        processed_text = self.preprocess_text(text)
-        key_terms = self._extract_key_terms(processed_text)
+        text_lower = text.lower()
         
-        best_match = None
-        best_score = 0.0
+        # Define patterns for different clause types
+        patterns = {
+            'Definitions': ['definition', 'defined', 'means', 'shall mean'],
+            'Payment': ['payment', 'invoice', 'fee', 'cost', 'price', 'amount'],
+            'Termination': ['termination', 'terminate', 'end', 'expire', 'cancel'],
+            'Confidentiality': ['confidential', 'non-disclosure', 'secret', 'private'],
+            'Liability': ['liability', 'liable', 'damages', 'indemnify', 'indemnification'],
+            'Intellectual Property': ['intellectual property', 'ip', 'copyright', 'patent', 'trademark'],
+            'Force Majeure': ['force majeure', 'act of god', 'beyond control'],
+            'Governing Law': ['governing law', 'jurisdiction', 'venue', 'applicable law'],
+            'Assignment': ['assignment', 'assign', 'transfer'],
+            'Warranty': ['warranty', 'warrant', 'guarantee', 'guaranty'],
+            'Service Level': ['service level', 'sla', 'performance', 'uptime'],
+            'Data Protection': ['data protection', 'privacy', 'gdpr', 'personal data'],
+            'Audit': ['audit', 'inspection', 'review', 'examination']
+        }
         
-        for clause in self.standard_clauses:
-            category_terms = self._extract_key_terms(clause['title'] + " " + clause['text'])
-            similarity = len(set(key_terms) & set(category_terms)) / len(set(key_terms) | set(category_terms))
-            
-            if similarity > best_score:
-                best_score = similarity
-                best_match = clause['category']
+        for clause_type, keywords in patterns.items():
+            if any(keyword in text_lower for keyword in keywords):
+                return clause_type
         
-        return best_match if best_match else "Unknown"
+        return 'General'
+
+    def _categorize_clause(self, text: str) -> str:
+        """Categorize a clause based on its content."""
+        return self._identify_clause_type(text)
     
  
