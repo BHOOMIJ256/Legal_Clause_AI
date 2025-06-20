@@ -8,6 +8,7 @@ from tqdm import tqdm
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+#Main class for uploading documentsSS
 class DocumentUploader:
     def __init__(self, 
                  source_dir: str,
