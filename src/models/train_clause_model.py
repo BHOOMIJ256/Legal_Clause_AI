@@ -61,7 +61,7 @@ class ClauseModelTrainer:
                     "label": 1
                 })
         
-        # Create negative pairs (different standard clauses)
+        # Create negative pairs wrt to matches(different standard clauses)
         negative_pairs = []
         for i, clause1 in enumerate(standard_clauses):
             for clause2 in standard_clauses[i+1:]:

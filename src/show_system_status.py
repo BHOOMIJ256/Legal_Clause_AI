@@ -14,7 +14,7 @@ def check_system_status():
     print("🔍 Legal Clause AI - Batch Processing System Status")
     print("=" * 60)
     
-    # Check main directories
+    # Check main directories for batch processing
     directories = [
         "data/agreements",
         "data/processed", 

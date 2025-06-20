@@ -27,7 +27,7 @@ def setup_directories():
     directories = [
         "data/agreements",
         "data/processed", 
-        "data/raw"  # Ensure the parent of standard_clauses.json exists
+        "data/raw"         # Ensure the parent of standard_clauses.json exists
     ]
     
     for directory in directories:

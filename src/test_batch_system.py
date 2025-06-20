@@ -26,7 +26,7 @@ def create_test_contracts():
     test_dir = Path("test_contracts")
     test_dir.mkdir(exist_ok=True)
     
-    # Create test contracts
+    # Create test contracts 
     test_contracts = [
         {
             "name": "test_contract_1.txt",

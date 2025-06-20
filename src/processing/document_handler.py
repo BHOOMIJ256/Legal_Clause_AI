@@ -5,7 +5,7 @@ import io
 import logging
 
 logger = logging.getLogger(__name__)
-
+#Main class for handling document processing
 class DocumentHandler:
     def __init__(self):
         """Initialize the DocumentHandler with supported file types."""

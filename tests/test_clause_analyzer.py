@@ -75,4 +75,4 @@ def main():
         test_clause_analysis(simple_analyzer, clause)
 
 if __name__ == "__main__":
-    main() 
+    main() #Run the main function

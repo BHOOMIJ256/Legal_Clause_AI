@@ -13,6 +13,7 @@ from processing.pipeline import ClauseProcessingPipeline
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+#Main class for parallel clause processing
 class ParallelClauseProcessor:
     def __init__(self, 
                  contracts_dir: str = "data/agreements",

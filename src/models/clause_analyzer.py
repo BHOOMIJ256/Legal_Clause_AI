@@ -58,7 +58,7 @@ class ClauseAnalyzer:
         # Tokenize and prepare input
         inputs = self.tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=512)
         
-        # Get model output
+        # Get model output in detail 
         with torch.no_grad():
             outputs = self.model(**inputs)
         

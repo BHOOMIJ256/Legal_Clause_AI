@@ -44,7 +44,7 @@ class ClauseProcessingPipeline:
                 else:
                     return []
         return []
-    
+    #Save updated standard clauses as a dict with a 'clauses' key.
     def _save_standard_clauses(self):
         """Save updated standard clauses as a dict with a 'clauses' key."""
         # Assign clause_id and clause_number to new clauses if missing

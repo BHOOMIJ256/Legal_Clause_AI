@@ -6,6 +6,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+#Main class for processing document
 class DocumentProcessor:
     def __init__(self):
         """Initialize the DocumentProcessor with improved clause patterns and NLP capabilities."""

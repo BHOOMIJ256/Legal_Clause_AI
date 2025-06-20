@@ -19,7 +19,7 @@ def process_agreement(file_content: bytes = None, file_type: str = None, agreeme
     try:
         print("\nInitializing components...")
         
-        # Check if standard clauses file exists
+        # Check if standard clauses file exists in the same directory as this file
         standard_clauses_path = os.path.join(os.path.dirname(__file__), "data", "transportation_standard_clauses.json")
         if not os.path.exists(standard_clauses_path):
             raise FileNotFoundError(f"Standard clauses file not found at: {standard_clauses_path}")
