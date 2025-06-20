@@ -43,7 +43,7 @@ class ClauseModelTrainer:
         self.model = AutoModel.from_pretrained(model_name).to(self.device)
         self.optimizer = AdamW(self.model.parameters(), lr=2e-5)
         
-    def prepare_dataset(self, standard_clauses_file: str):
+    def prepare_dataset(self, standard_clauses_file: str = "data/raw/standard_clauses.json"):
         """Prepare dataset from standard clauses and their variants."""
         with open(standard_clauses_file, 'r') as f:
             standard_clauses = json.load(f)
@@ -181,7 +181,7 @@ def main():
     trainer = ClauseModelTrainer()
     
     # Prepare dataset
-    train_dataset, val_dataset = trainer.prepare_dataset("data/standard_clauses.json")
+    train_dataset, val_dataset = trainer.prepare_dataset("data/raw/standard_clauses.json")
     
     # Train model
     trainer.train(train_dataset, val_dataset)

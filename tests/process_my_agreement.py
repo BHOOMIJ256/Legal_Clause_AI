@@ -7,8 +7,8 @@ project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_root)
 
 # Import from src directory
-from src.process_agreement import process_agreement
-from src.utils.document_handler import DocumentHandler
+from tests.process_agreement import process_agreement
+from src.processing.document_handler import DocumentHandler
 from src.models.clause_analyzer import ClauseAnalyzer
 
 def get_supported_file_types():

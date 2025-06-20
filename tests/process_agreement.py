@@ -1,7 +1,7 @@
 import os
 from typing import Dict, List, Optional
-from src.utils.document_handler import DocumentHandler
-from src.utils.document_processor import DocumentProcessor
+from src.processing.document_handler import DocumentHandler
+from src.processing.document_processor import DocumentProcessor
 from src.models.clause_analyzer import ClauseAnalyzer
 
 def process_agreement(file_content: bytes = None, file_type: str = None, agreement_text: str = None) -> Dict:

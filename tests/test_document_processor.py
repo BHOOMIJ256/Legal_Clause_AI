@@ -1,4 +1,4 @@
-from utils.document_processor import DocumentProcessor
+from src.processing.document_processor import DocumentProcessor
 
 def test_document_processor():
     # Initialize the processor
@@ -34,10 +34,10 @@ def test_document_processor():
     
     for i, clause in enumerate(clauses, 1):
         print(f"\nClause {i}:")
-        print(f"Title: {clause['title']}")
-        print(f"Type: {clause['type']}")
-        print(f"Text: {clause['text']}")
-        print(f"Key Terms: {', '.join(clause['key_terms'])}")
+        print(f"Title: {clause.get('title', '')}")
+        print(f"Type: {clause.get('type', '')}")
+        print(f"Text: {clause.get('text', '')}")
+        print(f"Key Terms: {', '.join(clause.get('key_terms', []))}")
         print("-" * 40)
 
 if __name__ == "__main__":

@@ -2,6 +2,9 @@ from typing import Dict, List, Optional
 import PyPDF2
 import docx
 import io
+import logging
+
+logger = logging.getLogger(__name__)
 
 class DocumentHandler:
     def __init__(self):
@@ -32,6 +35,7 @@ class DocumentHandler:
                 raise ValueError("No text could be extracted from the PDF")
                 
             print(f"Successfully extracted {len(text)} characters from PDF")
+            logger.info(f"Extracted text from PDF: {text[:200]}... [length: {len(text)}]")
             return text.strip()
             
         except Exception as e:
@@ -61,6 +65,7 @@ class DocumentHandler:
                 raise ValueError("No text could be extracted from the DOCX")
                 
             print(f"Successfully extracted {len(text)} characters from DOCX")
+            logger.info(f"Extracted text from DOCX: {text[:200]}... [length: {len(text)}]")
             return text.strip()
             
         except Exception as e:
@@ -85,6 +90,7 @@ class DocumentHandler:
                 raise ValueError("No text could be extracted from the TXT")
                 
             print(f"Successfully extracted {len(text)} characters from TXT")
+            logger.info(f"Extracted text from TXT: {text[:200]}... [length: {len(text)}]")
             return text.strip()
             
         except Exception as e:
@@ -112,11 +118,15 @@ class DocumentHandler:
         
         try:
             if file_type == 'pdf':
-                text = self._extract_from_pdf(file_content)
+                text = self.extract_text_from_pdf(file_content)
             elif file_type == 'docx':
-                text = self._extract_from_docx(file_content)
+                try:
+                    text = self.extract_text_from_docx(file_content)
+                except Exception as e:
+                    logger.error(f"Skipping file (invalid DOCX): {e}")
+                    raise
             elif file_type == 'txt':
-                text = self._extract_from_txt(file_content)
+                text = self.extract_text_from_txt(file_content)
             else:
                 raise ValueError(f"Unsupported file type: {file_type}")
                 
@@ -131,6 +141,7 @@ class DocumentHandler:
                 raise ValueError("No text content extracted from document")
                 
             print(f"Successfully extracted {len(text)} characters from {file_type.upper()}")
+            logger.info(f"Extracted text from {file_type}: {text[:200]}... [length: {len(text)}]")
             return text
             
         except Exception as e:
@@ -140,10 +151,7 @@ class DocumentHandler:
     def _extract_from_pdf(self, file_content: bytes) -> str:
         """Extract text from PDF file."""
         try:
-            import PyPDF2
-            from io import BytesIO
-            
-            pdf_file = BytesIO(file_content)
+            pdf_file = io.BytesIO(file_content)
             pdf_reader = PyPDF2.PdfReader(pdf_file)
             text = ""
             
@@ -158,10 +166,7 @@ class DocumentHandler:
     def _extract_from_docx(self, file_content: bytes) -> str:
         """Extract text from DOCX file."""
         try:
-            import docx
-            from io import BytesIO
-            
-            doc = docx.Document(BytesIO(file_content))
+            doc = docx.Document(io.BytesIO(file_content))
             text = ""
             
             for paragraph in doc.paragraphs:

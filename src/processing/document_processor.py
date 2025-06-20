@@ -2,12 +2,19 @@ import re
 from typing import List, Dict, Optional
 import spacy
 import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 class DocumentProcessor:
     def __init__(self):
         """Initialize the DocumentProcessor with improved clause patterns and NLP capabilities."""
         # Initialize spaCy for better text processing
-        self.nlp = spacy.load("en_core_web_sm")
+        try:
+           self.nlp = spacy.load("en_core_web_sm")
+        except OSError:
+            logger.error("spaCy model 'en_core_web_sm' is not installed. Please run: python -m spacy download en_core_web_sm")
+            raise
         
         # Enhanced clause patterns to catch more variations
         self.clause_patterns = [
@@ -39,9 +46,14 @@ class DocumentProcessor:
         if not isinstance(text, str):
             raise ValueError(f"Text must be a string, got {type(text)}")
             
+        # Remove leading spaces from each line
+        text = '\n'.join(line.lstrip() for line in text.splitlines())
+            
         # Split text into clauses
         clauses = self.segment_document(text)
-        print(f"Segmented document into {len(clauses)} clauses")
+        logger.info(f"Segmented {len(clauses)} clauses from document.")
+        for i, clause in enumerate(clauses[:3]):  # Show first 3 clauses
+            logger.info(f"Clause {i+1}: {clause.get('text', '')[:100]}...")
         
         # Process each clause
         processed_clauses = []
@@ -78,46 +90,46 @@ class DocumentProcessor:
     
     def segment_document(self, text: str) -> List[Dict]:
         """
-        Segment document into clauses.
-        
-        Args:
-            text (str): Document text
-            
-        Returns:
-            List[Dict]: List of clauses with titles and text
+        Split contract text into clauses using robust legal patterns.
+        Returns a list of dicts: [{'title': ..., 'text': ...}, ...]
         """
-        # Split text into paragraphs
-        paragraphs = text.split('\n\n')
+        # Remove leading spaces from each line
+        text = '\n'.join(line.lstrip() for line in text.splitlines())
         
+        # Combine multiple patterns for clause headings
+        clause_heading_pattern = re.compile(
+            r'(\n|^)\s*'  # Start of line or string, optional spaces
+            r'('
+            r'(\d{1,2}(?:\.\d+)*\.)'  # Numbered: 1. or 2.1. or 3.2.1.
+            r'|([A-Z]\.)'  # Lettered: A.
+            r'|(Article\s+\d+[.:]?)'  # Article 1:
+            r'|(Section\s+\d+[.:]?)'  # Section 2:
+            r'|([A-Z][A-Z\s\-]{3,}(?=\n))'  # ALL CAPS headings
+            r')',
+            re.MULTILINE
+        )
+        matches = list(clause_heading_pattern.finditer(text))
         clauses = []
-        current_title = ""
-        current_text = []
-        
-        for para in paragraphs:
-            para = para.strip()
-            if not para:
-                continue
-                
-            # Check if paragraph is a title
-            if self.is_title(para):
-                # Save previous clause if exists
-                if current_text:
-                    clauses.append({
-                        'title': current_title,
-                        'text': '\n'.join(current_text)
-                    })
-                current_title = para
-                current_text = []
-            else:
-                current_text.append(para)
-        
-        # Add last clause
-        if current_text:
-            clauses.append({
-                'title': current_title,
-                'text': '\n'.join(current_text)
-            })
-        
+
+        for i, match in enumerate(matches):
+            start = match.end()
+            end = matches[i+1].start() if i+1 < len(matches) else len(text)
+            # Title: use the matched heading, strip newlines and colons
+            title = match.group(2).strip().replace('\n', '').replace(':', '')
+            clause_text = text[start:end].strip()
+            if clause_text:
+                clauses.append({'title': title, 'text': clause_text})
+
+        # Fallback: if no matches, try splitting by double newlines (paragraphs)
+        if not clauses:
+            paragraphs = [p.strip() for p in text.split('\n\n') if len(p.strip()) > 20]
+            for i, para in enumerate(paragraphs, 1):
+                clauses.append({'title': f'Clause {i}', 'text': para})
+
+        # Final fallback: if still no clauses, return the whole text as one clause
+        if not clauses:
+            clauses = [{'title': 'Full Document', 'text': text.strip()}]
+
         return clauses
     
     def is_title(self, text: str) -> bool:
