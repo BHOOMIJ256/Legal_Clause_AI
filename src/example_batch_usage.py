@@ -16,7 +16,7 @@ sys.path.append(str(Path(__file__).parent))
 from utils.batch_uploader import DocumentUploader
 from processing.parallel_pipeline import ParallelClauseProcessor
 
-# Set up logging
+# Set up logging for batch processing
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 

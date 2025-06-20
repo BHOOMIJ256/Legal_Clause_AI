@@ -10,7 +10,7 @@ def process_document_from_file(file_path: str, file_type: str):
     """
     try:
         # Read file directly into memory
-        with open(file_path, 'rb') as f:
+        with open(file_path, 'rb') as f:#rb is read in binary mode
             file_content = f.read()
         
         # Process the document

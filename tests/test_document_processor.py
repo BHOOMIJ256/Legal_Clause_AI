@@ -41,4 +41,4 @@ def test_document_processor():
         print("-" * 40)
 
 if __name__ == "__main__":
-    test_document_processor() 
+    test_document_processor() #Run the main function

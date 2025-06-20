@@ -6,7 +6,7 @@ from typing import Dict, List, Optional
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_root)
 
-# Import from src directory
+# Import from src directory for processing agreement
 from tests.process_agreement import process_agreement
 from src.processing.document_handler import DocumentHandler
 from src.models.clause_analyzer import ClauseAnalyzer
