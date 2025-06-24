@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-Main execution script for batch processing of legal contracts.
-This script demonstrates how to use the DocumentUploader and ParallelClauseProcessor
-to efficiently process large numbers of contracts.
+Main execution script for batch processing of legal contracts (sequential version).
+Uploads contracts and processes them one by one using ClauseProcessingPipeline.
 """
 
 import os
@@ -15,8 +14,8 @@ from typing import Optional
 # Add src to path for imports
 sys.path.append(str(Path(__file__).parent))
 
-from utils.batch_uploader import DocumentUploader
-from processing.parallel_pipeline import ParallelClauseProcessor
+from src.utils.batch_uploader import DocumentUploader
+from src.processing.pipeline import ClauseProcessingPipeline
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -60,30 +59,41 @@ def upload_contracts(source_path: str, max_files: Optional[int] = None):
     
     return uploaded
 
-def process_contracts_parallel(max_workers: Optional[int] = None):
+def process_contracts_sequential(max_files: Optional[int] = None):
     """
-    Process all uploaded contracts in parallel.
-    
-    Args:
-        max_workers: Number of parallel workers (None for auto-detect)
+    Process all uploaded contracts sequentially (optionally limit number).
     """
-    logger.info("Starting parallel contract processing")
+    logger.info("Starting sequential contract processing")
     
-    processor = ParallelClauseProcessor(
+    pipeline = ClauseProcessingPipeline(
         contracts_dir="data/agreements",
         output_dir="data/processed",
-        standard_clauses_file="data/raw/standard_clauses.json",
-        max_workers=max_workers
+        standard_clauses_file="data/raw/standard_clauses.json"
     )
-    
-    # Run the complete pipeline
-    processor.run_pipeline()
-    
-    logger.info("Parallel processing completed")
+    # If max_files is set, process only that many files
+    contract_files = [f for f in Path("data/agreements").glob("**/*.docx") if not f.name.startswith("._")]
+    if max_files is not None:
+        contract_files = contract_files[:max_files]
+    results = []
+    for contract_path in contract_files:
+        result = pipeline.process_contract(contract_path)
+        results.append(result)
+        pipeline._save_standard_clauses()  # Save after each contract
+        with open(Path("data/processed") / "processing_results.json", 'w') as f:
+            import json
+            json.dump(results, f, indent=2)
+    logger.info("Sequential processing completed")
+
+    # --- ADD THIS SUMMARY BLOCK ---
+    logger.info(f"Total contracts processed: {len(results)}")
+    matched = sum(r.get('matched_clauses', 0) for r in results if r.get('status') == 'success')
+    new = sum(r.get('new_standard_clauses', 0) for r in results if r.get('status') == 'success')
+    logger.info(f"Total clauses matched: {matched}")
+    logger.info(f"New standard clauses added: {new}")
 
 def main():
     """Main execution function."""
-    parser = argparse.ArgumentParser(description="Batch process legal contracts")
+    parser = argparse.ArgumentParser(description="Batch process legal contracts (sequential)")
     parser.add_argument(
         "--source", 
         type=str, 
@@ -95,12 +105,6 @@ def main():
         type=int, 
         default=None,
         help="Maximum number of files to process (default: all)"
-    )
-    parser.add_argument(
-        "--workers", 
-        type=int, 
-        default=None,
-        help="Number of parallel workers (default: auto-detect)"
     )
     parser.add_argument(
         "--upload-only", 
@@ -126,8 +130,8 @@ def main():
             return
     
     if not args.upload_only:
-        # Process contracts
-        process_contracts_parallel(args.workers)
+        # Process contracts sequentially
+        process_contracts_sequential(args.max_files)
     
     logger.info("Batch processing completed successfully!")
 
