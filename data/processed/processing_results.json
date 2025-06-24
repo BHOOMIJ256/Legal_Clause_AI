@@ -1,9 +1,86 @@
 [
   {
     "status": "success",
+    "contract_name": "v4-Softcell-USFBL-Service Agreement_9.docx",
+    "total_clauses": 29,
+    "matched_clauses": 29,
+    "new_standard_clauses": 0
+  },
+  {
+    "status": "success",
+    "contract_name": "Softcell Agreement_4.docx",
+    "total_clauses": 12,
+    "matched_clauses": 12,
+    "new_standard_clauses": 0
+  },
+  {
+    "status": "success",
+    "contract_name": "ICICI_Standard_Master Maintenance and Service Level Agreement_12.docx",
+    "total_clauses": 32,
+    "matched_clauses": 32,
+    "new_standard_clauses": 0
+  },
+  {
+    "status": "success",
+    "contract_name": "Sarvatra_Softcell_Agreement (Cisco)_01.04.2020_6.docx",
+    "total_clauses": 3,
+    "matched_clauses": 3,
+    "new_standard_clauses": 0
+  },
+  {
+    "status": "success",
     "contract_name": "Collaboration agreement - 26.8.2020_0.docx",
     "total_clauses": 23,
-    "matched_clauses": 13,
-    "new_standard_clauses": 10
+    "matched_clauses": 23,
+    "new_standard_clauses": 0
+  },
+  {
+    "status": "success",
+    "contract_name": "v6-SERVICE LEVEL AGREEMENT - Softcell AMC (1)_14.docx",
+    "total_clauses": 18,
+    "matched_clauses": 18,
+    "new_standard_clauses": 0
+  },
+  {
+    "status": "success",
+    "contract_name": "MSA-ABFSSL-STGPL-LEGAL-v7_10.docx",
+    "total_clauses": 5,
+    "matched_clauses": 5,
+    "new_standard_clauses": 0
+  },
+  {
+    "status": "success",
+    "contract_name": "Final-Softcell-Post-Reseller-Agreement_Ver1.0_18.docx",
+    "total_clauses": 35,
+    "matched_clauses": 35,
+    "new_standard_clauses": 0
+  },
+  {
+    "status": "success",
+    "contract_name": "Draft Non-Disclosure Agreement (Vendor)_1.docx",
+    "total_clauses": 1,
+    "matched_clauses": 1,
+    "new_standard_clauses": 0
+  },
+  {
+    "status": "success",
+    "contract_name": "v13-MSA-Softcell-Sirion_v6_Sirion Legal_Dec 8, 2023_7.docx",
+    "total_clauses": 11,
+    "matched_clauses": 11,
+    "new_standard_clauses": 0
+  },
+  {
+    "status": "success",
+    "contract_name": "v2-TRIPARTITE SERVICE LEVEL AGREEMENT_2.docx",
+    "total_clauses": 24,
+    "matched_clauses": 24,
+    "new_standard_clauses": 0
+  },
+  {
+    "status": "success",
+    "contract_name": "Nutanix Master Purchase Agreement Template_India_FINAL - Updated Aug 2023_16.docx",
+    "total_clauses": 19,
+    "matched_clauses": 19,
+    "new_standard_clauses": 0
   }
 ]
