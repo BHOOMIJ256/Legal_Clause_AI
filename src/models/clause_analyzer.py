@@ -10,8 +10,11 @@ import difflib
 from Levenshtein import ratio
 from sklearn.feature_extraction.text import TfidfVectorizer
 from difflib import SequenceMatcher
+from transformers import pipeline
 import os
 import logging
+import hashlib
+
 
 class ClauseAnalyzer:
     def __init__(self, standard_clauses_path: str = "data/raw/standard_clauses.json"):
@@ -28,6 +31,14 @@ class ClauseAnalyzer:
         self.standard_embeddings = self._compute_standard_embeddings()
         
         self.logger.info(f"Loaded {len(self.standard_clauses)} standard clauses.")
+        
+        self.rewriter = pipeline(
+            "text2text-generation",
+            model="t5-base",  # or "t5-base", "facebook/bart-large-cnn"
+            device=0 if torch.cuda.is_available() else -1
+        )
+        
+        self.llm_cache = {}  # In-memory cache for LLM outputs
         
     def _load_standard_clauses(self, file_path: str):
         with open(file_path, 'r') as f:
@@ -76,7 +87,7 @@ class ClauseAnalyzer:
             similarity = cosine_similarity([embedding1], [embedding2])[0][0]
             
             # Apply threshold
-            return similarity if similarity > 0.6 else 0.0
+            return similarity if similarity > 0.5 else 0.0
         except Exception as e:
             print(f"Error calculating similarity: {e}")
             return 0.0
@@ -107,6 +118,7 @@ class ClauseAnalyzer:
 
     def analyze_document(self, clauses: List[Dict]) -> List[Dict]:
         """Analyze multiple clauses in a document."""
+        self.logger.info(f"Analyzing {len(clauses)} clauses in document.")
         results = []
         for i, clause in enumerate(clauses, 1):
             try:
@@ -137,8 +149,10 @@ class ClauseAnalyzer:
         
         # Find matching standard clause
         matching_clause, similarity_score = self._find_matching_clause(clause_text)
+        # Ensure similarity_score is a native Python float
+        similarity_score = float(similarity_score) if similarity_score is not None else 0.0
         
-        if matching_clause and similarity_score > 0.6:
+        if matching_clause and similarity_score > 0.5:
             # Extract key terms
             key_terms = self._extract_key_terms(clause_text)
             
@@ -171,35 +185,51 @@ class ClauseAnalyzer:
             }
 
     def _find_differences(self, original: str, standard: str) -> List[Dict]:
-        """Find differences between original and standard clause."""
-        matcher = SequenceMatcher(None, original, standard)
+        """Find differences between original and standard clause at the sentence level."""
+        # Split into sentences (very basic, can be improved with nltk.sent_tokenize)
+        sentence_split = lambda text: re.split(r'(?<=[.!?]) +', text)
+        original_sentences = sentence_split(original)
+        standard_sentences = sentence_split(standard)
+        diff = difflib.SequenceMatcher(None, original_sentences, standard_sentences)
         differences = []
-        
-        for tag, i1, i2, j1, j2 in matcher.get_opcodes():
-            if tag != 'equal':
+        for tag, i1, i2, j1, j2 in diff.get_opcodes():
+            if tag == 'replace':
                 differences.append({
-                    'type': tag,
-                    'original': original[i1:i2],
-                    'revised': standard[j1:j2]
+                    'type': 'replace',
+                    'original': ' '.join(original_sentences[i1:i2]),
+                    'revised': ' '.join(standard_sentences[j1:j2])
                 })
-        
+            elif tag == 'delete':
+                differences.append({
+                    'type': 'delete',
+                    'original': ' '.join(original_sentences[i1:i2]),
+                    'revised': ''
+                })
+            elif tag == 'insert':
+                differences.append({
+                    'type': 'insert',
+                    'original': '',
+                    'revised': ' '.join(standard_sentences[j1:j2])
+                })
         return differences
 
     def _generate_revision(self, standard_clause: Dict, customer_clause: str, differences: List[Dict]) -> str:
-        """Generate a suggested revision based on standard clause and differences."""
-        revision = standard_clause['text']
-        
-        # Apply customer's language style where appropriate
-        customer_doc = self.nlp(customer_clause)
-        standard_doc = self.nlp(revision)
-        
-        # Keep customer's formatting and style where appropriate
-        for diff in differences:
-            if diff['type'] == 'additional_terms':
-                # Consider incorporating some of the additional terms if they're relevant
-                pass
-        
-        return revision
+        """
+        Generate a suggested revision based on the standard clause, but articulated using the customer's language.
+        """
+        prompt = (
+            f"Standard clause:\n{standard_clause['text']}\n\n"
+            f"Customer's clause:\n{customer_clause}\n\n"
+            "Rewrite the standard clause so that it keeps all the legal requirements and structure of the standard, "
+            "but uses the style, terminology, and language of the customer's clause as much as possible. "
+            "Output only the revised clause.\n\n"
+            "Example:\n"
+            "Standard clause: Payment must be made within 30 days.\n"
+            "Customer's clause: All invoices are due within 45 days of receipt.\n"
+            "Revised clause: Payment must be made within 45 days of receipt.\n"
+        )
+        result = self.call_llm(prompt)
+        return result
 
     def preprocess_text(self, text: str) -> str:
         """Preprocess text for analysis."""
@@ -244,5 +274,14 @@ class ClauseAnalyzer:
     def _categorize_clause(self, text: str) -> str:
         """Categorize a clause based on its content."""
         return self._identify_clause_type(text)
+
+    def call_llm(self, prompt: str) -> str:
+        result = self.rewriter(prompt, max_new_tokens=256)
+        return result[0]['generated_text']
+
+
+    def _make_cache_key(self, standard_text, customer_text):
+        key = f"{standard_text}|||{customer_text}"
+        return hashlib.sha256(key.encode('utf-8')).hexdigest()
     
  

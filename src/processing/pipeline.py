@@ -5,10 +5,11 @@ import json
 from tqdm import tqdm
 import logging
 
+
 # Update imports to reflect new structure
-from models.clause_analyzer import ClauseAnalyzer
-from processing.document_handler import DocumentHandler
-from processing.document_processor import DocumentProcessor
+from src.models.clause_analyzer import ClauseAnalyzer
+from src.processing.document_handler import DocumentHandler
+from src.processing.document_processor import DocumentProcessor
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -80,8 +81,13 @@ class ClauseProcessingPipeline:
                 return {"status": "error", "contract_name": contract_path.name, "message": "No clauses extracted"}
             # Process clauses (add metadata, etc.)
             processed_clauses = self.document_processor.process_document(text)
+            logging.info(f"Processed clauses: {len(processed_clauses)}")
+            logging.info(f"First 3 processed clauses: {[c['title'] for c in processed_clauses[:3]]}")
             # Analyze clauses
             analysis_results = self.clause_analyzer.analyze_document(processed_clauses)
+            logging.info(f"Analysis results: {len(analysis_results)}")
+            if analysis_results:
+                logging.info(f"First 3 analysis statuses: {[r['analysis_status'] for r in analysis_results[:3]]}")
             # Log clause-to-standard matches
             for i, (clause, result) in enumerate(zip(processed_clauses, analysis_results), 1):
                 if result["analysis_status"] == "match_found":
@@ -97,7 +103,8 @@ class ClauseProcessingPipeline:
                 "contract_name": contract_path.name,
                 "total_clauses": len(clauses),
                 "matched_clauses": sum(1 for r in analysis_results if r["analysis_status"] == "match_found"),
-                "new_standard_clauses": len(self.standard_clauses) - len(self._load_standard_clauses())
+                "new_standard_clauses": len(self.standard_clauses) - len(self._load_standard_clauses()),
+                "clauses": analysis_results
             }
         except Exception as e:
             logging.error(f"Error processing contract {contract_path.name}: {str(e)}")
@@ -150,6 +157,12 @@ class ClauseProcessingPipeline:
             # Save detailed results
             with open(self.output_dir / "processing_results.json", 'w') as f:
                 json.dump(results, f, indent=2)
+        
+        logger.info(f"Total contracts processed: {len(results)}")
+        matched = sum(r.get('matched_clauses', 0) for r in results if r.get('status') == 'success')
+        new = sum(r.get('new_standard_clauses', 0) for r in results if r.get('status') == 'success')
+        logger.info(f"Total clauses matched: {matched}")
+        logger.info(f"New standard clauses added: {new}")
         
         return results
     
@@ -222,18 +235,11 @@ class ClauseProcessingPipeline:
         positive_pairs, negative_pairs = self.generate_training_dataset()
         
         # Print summary
-        total_contracts = len(results)
-        successful = sum(1 for r in results if r["status"] == "success")
-        total_clauses = sum(r.get("total_clauses", 0) for r in results if r["status"] == "success")
-        matched_clauses = sum(r.get("matched_clauses", 0) for r in results if r["status"] == "success")
-        new_standard_clauses = sum(r.get("new_standard_clauses", 0) for r in results if r["status"] == "success")
-        
-        logger.info("\nProcessing Summary:")
-        logger.info(f"Total contracts processed: {total_contracts}")
-        logger.info(f"Successfully processed: {successful}")
-        logger.info(f"Total clauses extracted: {total_clauses}")
-        logger.info(f"Clauses matched with standards: {matched_clauses}")
-        logger.info(f"New standard clauses added: {new_standard_clauses}")
+        logger.info(f"Total contracts processed: {len(results)}")
+        matched = sum(r.get('matched_clauses', 0) for r in results if r.get('status') == 'success')
+        new = sum(r.get('new_standard_clauses', 0) for r in results if r.get('status') == 'success')
+        logger.info(f"Total clauses matched: {matched}")
+        logger.info(f"New standard clauses added: {new}")
         logger.info(f"\nDataset Summary:")
         logger.info(f"Positive pairs: {len(positive_pairs)}")
         logger.info(f"Negative pairs: {len(negative_pairs)}")
