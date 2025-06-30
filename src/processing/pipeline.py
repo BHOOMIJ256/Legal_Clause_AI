@@ -81,8 +81,13 @@ class ClauseProcessingPipeline:
                 return {"status": "error", "contract_name": contract_path.name, "message": "No clauses extracted"}
             # Process clauses (add metadata, etc.)
             processed_clauses = self.document_processor.process_document(text)
+            logging.info(f"Processed clauses: {len(processed_clauses)}")
+            logging.info(f"First 3 processed clauses: {[c['title'] for c in processed_clauses[:3]]}")
             # Analyze clauses
             analysis_results = self.clause_analyzer.analyze_document(processed_clauses)
+            logging.info(f"Analysis results: {len(analysis_results)}")
+            if analysis_results:
+                logging.info(f"First 3 analysis statuses: {[r['analysis_status'] for r in analysis_results[:3]]}")
             # Log clause-to-standard matches
             for i, (clause, result) in enumerate(zip(processed_clauses, analysis_results), 1):
                 if result["analysis_status"] == "match_found":
@@ -98,7 +103,8 @@ class ClauseProcessingPipeline:
                 "contract_name": contract_path.name,
                 "total_clauses": len(clauses),
                 "matched_clauses": sum(1 for r in analysis_results if r["analysis_status"] == "match_found"),
-                "new_standard_clauses": len(self.standard_clauses) - len(self._load_standard_clauses())
+                "new_standard_clauses": len(self.standard_clauses) - len(self._load_standard_clauses()),
+                "clauses": analysis_results
             }
         except Exception as e:
             logging.error(f"Error processing contract {contract_path.name}: {str(e)}")
