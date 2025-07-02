@@ -1,7 +1,4 @@
-Read file: README.md
-Here is a **detailed, precise, and professional README** for your Legal Clause AI project, tailored to your workflow, objectives, and audience (including legal and technical users):
 
----
 
 # Legal Clause AI
 
