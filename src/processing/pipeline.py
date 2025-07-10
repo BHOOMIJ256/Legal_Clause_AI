@@ -7,9 +7,9 @@ import logging
 
 
 # Update imports to reflect new structure
-from src.models.clause_analyzer import ClauseAnalyzer
-from src.processing.document_handler import DocumentHandler
-from src.processing.document_processor import DocumentProcessor
+from models.clause_analyzer import ClauseAnalyzer
+from processing.document_handler import DocumentHandler
+from processing.document_processor import DocumentProcessor
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -119,25 +119,30 @@ class ClauseProcessingPipeline:
     def _update_standard_clauses(self, processed_clauses: List[Dict], analysis_results: List[Dict]):
         """Update standard clauses based on analysis results."""
         for i, (clause, result) in enumerate(zip(processed_clauses, analysis_results), 1):
+            text_clean = clause.get("text", "").replace('\t', ' ').replace('\\n', '\n')
             if result["analysis_status"] == "no_match":
                 new_clause = {
                     "title": clause.get("title", "Unknown"),
-                    "text": clause.get("text", ""),
-                    "category": self.clause_analyzer._categorize_clause(clause.get("text", "")),
+                    "text": text_clean,
+                    "category": self.clause_analyzer._categorize_clause(text_clean),
                     "variants": []
                 }
                 self.standard_clauses.append(new_clause)
                 logging.info(f"Added new standard clause from contract clause {i}: '{clause.get('title', '')}'")
             elif result["analysis_status"] == "match_found":
                 matching_clause = result.get("matching_standard_clause", {})
-                if isinstance(matching_clause, dict) and result["similarity_score"] < 0.95:
+                similarity = result.get("similarity_score", 0)
+                # Only add as variant if similarity is high but not a near-duplicate
+                if isinstance(matching_clause, dict) and 0.85 <= similarity < 0.98:
                     matching_text = matching_clause.get("text", "")
                     for std_clause in self.standard_clauses:
                         if isinstance(std_clause, dict) and std_clause.get("text") == matching_text:
                             if "variants" not in std_clause:
                                 std_clause["variants"] = []
-                            std_clause["variants"].append(clause.get("text", ""))
-                            logging.info(f"Added variant to standard clause '{std_clause.get('title', '')}' from contract clause {i}: '{clause.get('title', '')}'")
+                            # Only add if not already present
+                            if text_clean not in std_clause["variants"]:
+                                std_clause["variants"].append(text_clean)
+                                logging.info(f"Added variant to standard clause '{std_clause.get('title', '')}' from contract clause {i}: '{clause.get('title', '')}'")
                             break
     
     def process_all_contracts(self) -> List[Dict]:

@@ -44,30 +44,35 @@ class DocumentHandler:
     
     def extract_text_from_docx(self, docx_file: bytes) -> str:
         """
-        Extract text from a DOCX file in memory.
-        
+        Extract text from a DOCX file in memory, including paragraphs and tables.
         Args:
             docx_file (bytes): DOCX file content as bytes
-            
         Returns:
-            str: Extracted text from the DOCX
+            str: Extracted text from the DOCX, with tables included
         """
         try:
             print("Extracting text from DOCX...")
             doc = docx.Document(io.BytesIO(docx_file))
             text = ""
+            # Extract paragraphs
             for i, para in enumerate(doc.paragraphs):
                 if para.text:
                     text += para.text + "\n"
                 print(f"Processed paragraph {i+1}")
-            
+            # Extract tables
+            for t_idx, table in enumerate(doc.tables):
+                text += f"\n---TABLE {t_idx+1} START---\n"
+                for row in table.rows:
+                    row_text = " | ".join(cell.text.strip() for cell in row.cells)
+                    if row_text:
+                        text += row_text + "\n"
+                text += f"---TABLE {t_idx+1} END---\n"
+                print(f"Processed table {t_idx+1}")
             if not text.strip():
                 raise ValueError("No text could be extracted from the DOCX")
-                
-            print(f"Successfully extracted {len(text)} characters from DOCX")
+            print(f"Successfully extracted {len(text)} characters from DOCX (including tables)")
             logger.info(f"Extracted text from DOCX: {text[:200]}... [length: {len(text)}]")
             return text.strip()
-            
         except Exception as e:
             print(f"Error extracting text from DOCX: {str(e)}")
             raise

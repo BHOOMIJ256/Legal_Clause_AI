@@ -133,56 +133,75 @@ class ClauseAnalyzer:
         return results
 
     def analyze_clause(self, clause: Dict) -> Dict[str, Any]:
-        """Analyze a single clause using LegalBERT."""
+        """Analyze a single clause using LegalBERT, with improved matching and output clarity."""
         if not isinstance(clause, dict):
             raise ValueError(f"Clause must be a dictionary, got {type(clause)}")
-            
+        
         # Get text from either 'text' or 'original_text' key
         clause_text = clause.get('text') or clause.get('original_text')
         if not clause_text:
             raise ValueError("Clause dictionary must contain either 'text' or 'original_text' key")
-            
         if not isinstance(clause_text, str):
             raise ValueError(f"Clause text must be a string, got {type(clause_text)}")
-            
         clause_title = clause.get('title', '')
-        
-        # Find matching standard clause
-        matching_clause, similarity_score = self._find_matching_clause(clause_text)
-        # Ensure similarity_score is a native Python float
-        similarity_score = float(similarity_score) if similarity_score is not None else 0.0
-        
-        if matching_clause and similarity_score > 0.5:
-            # Extract key terms
-            key_terms = self._extract_key_terms(clause_text)
-            
-            # Find differences
-            differences = self._find_differences(clause_text, matching_clause['text'])
-            
-            # Generate revision
-            suggested_revision = self._generate_revision(matching_clause, clause_text, differences)
-            
-            return {
-                "clause_title": clause_title,
-                "original_text": clause_text,
-                "analysis_status": "match_found",
-                "similarity_score": similarity_score,
-                "matching_standard_clause": {
-                    "title": matching_clause['title'],
-                    "text": matching_clause['text']
-                },
-                "key_terms": key_terms,
-                "differences": differences,
-                "suggested_revision": suggested_revision
+
+        # Identify clause type
+        clause_type = self._identify_clause_type(clause_text)
+
+        # Find best matching standard clause of the same type
+        best_match = None
+        best_score = 0.0
+        for std_clause in self.standard_clauses:
+            std_type = std_clause.get('category') or self._identify_clause_type(std_clause.get('text', ''))
+            if std_type != clause_type:
+                continue
+            std_embedding = self.standard_embeddings.get(std_clause.get('clause_id') or std_clause.get('id'))
+            if std_embedding is None:
+                continue
+            input_embedding = self._get_bert_embedding(clause_text)
+            score = cosine_similarity([input_embedding], [std_embedding])[0][0]
+            if score > best_score:
+                best_score = score
+                best_match = std_clause
+
+        similarity_score = float(best_score)
+        key_terms = self._extract_key_terms(clause_text)
+        summary = ""
+        warning = ""
+        differences = []
+        suggested_revision = ""
+        matching_standard_clause = {"title": "", "text": ""}
+
+        if best_match and similarity_score >= 0.75:
+            matching_standard_clause = {
+                "title": best_match.get('title', ''),
+                "text": best_match.get('text', '')
             }
+            differences = self._find_differences(clause_text, best_match.get('text', ''))
+            # Only generate revision if similarity is strong and types match
+            if similarity_score >= 0.85:
+                suggested_revision = self._generate_revision(best_match, clause_text, differences)
+            summary = f"Customer clause matches standard clause '{best_match.get('title', '')}' (type: {clause_type}) with similarity {similarity_score:.2f}."
+            if differences:
+                summary += f" Key difference: {differences[0]['type']} - '{differences[0]['original'][:60]}...' vs. '{differences[0]['revised'][:60]}...'"
+            if similarity_score < 0.85:
+                warning = "Low similarity—review manually."
         else:
-            return {
-                "clause_title": clause_title,
-                "original_text": clause_text,
-                "analysis_status": "no_match",
-                "similarity_score": similarity_score,
-                "key_terms": self._extract_key_terms(clause_text)
-            }
+            summary = f"No relevant standard clause found for type '{clause_type}' or similarity too low ({similarity_score:.2f})."
+            warning = "No strong match—review manually."
+
+        return {
+            "clause_title": clause_title,
+            "clause_type": clause_type,
+            "original_text": clause_text,
+            "analysis_status": "match_found" if best_match and similarity_score >= 0.75 else "no_match",
+            "similarity_score": similarity_score,
+            "matching_standard_clause": matching_standard_clause,
+            "differences": differences,
+            "suggested_revision": suggested_revision,
+            "summary": summary,
+            "warning": warning
+        }
 
     def _find_differences(self, original: str, standard: str) -> List[Dict]:
         """Find differences between original and standard clause at the sentence level."""
@@ -216,20 +235,31 @@ class ClauseAnalyzer:
     def _generate_revision(self, standard_clause: Dict, customer_clause: str, differences: List[Dict]) -> str:
         """
         Generate a suggested revision based on the standard clause, but articulated using the customer's language.
+        Always return a string (never a boolean). If the LLM output is not actionable, return an empty string.
+        
+        This version uses a much shorter, direct prompt to see if the model produces better outputs.
         """
         prompt = (
-            f"Standard clause:\n{standard_clause['text']}\n\n"
-            f"Customer's clause:\n{customer_clause}\n\n"
-            "Rewrite the standard clause so that it keeps all the legal requirements and structure of the standard, "
-            "but uses the style, terminology, and language of the customer's clause as much as possible. "
-            "Output only the revised clause.\n\n"
-            "Example:\n"
-            "Standard clause: Payment must be made within 30 days.\n"
-            "Customer's clause: All invoices are due within 45 days of receipt.\n"
-            "Revised clause: Payment must be made within 45 days of receipt.\n"
+            "Rewrite the standard clause below using the style and terminology of the customer's clause. "
+            "Keep the legal meaning the same.\n\n"
+            f"Standard clause: {standard_clause['text']}\n"
+            f"Customer's clause: {customer_clause}\n"
+            "Revised clause:"
         )
         result = self.call_llm(prompt)
-        return result
+        print(f"LLM result: {result}")
+        # Ensure result is a string and not a boolean
+        if isinstance(result, bool):
+            return ""
+        if not isinstance(result, str):
+            return ""
+        # If the result is just 'True' or 'False' as a string, treat as empty
+        if result.strip().lower() in ["true", "false"]:
+            return ""
+        # Optionally, if the result is too short or not actionable, treat as empty
+        if len(result.strip()) < 5:
+            return ""
+        return result.strip()
 
     def preprocess_text(self, text: str) -> str:
         """Preprocess text for analysis."""
@@ -276,8 +306,9 @@ class ClauseAnalyzer:
         return self._identify_clause_type(text)
 
     def call_llm(self, prompt: str) -> str:
-        result = self.rewriter(prompt, max_new_tokens=256)
-        return result[0]['generated_text']
+        result = self.rewriter(prompt, max_length=512, num_return_sequences=1)
+        print(f"Raw LLM output: {result}")
+        return result[0]['generated_text'] if result and 'generated_text' in result[0] else ""
 
 
     def _make_cache_key(self, standard_text, customer_text):

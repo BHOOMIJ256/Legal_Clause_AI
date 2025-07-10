@@ -96,42 +96,78 @@ class DocumentProcessor:
         """
         # Remove leading spaces from each line
         text = '\n'.join(line.lstrip() for line in text.splitlines())
-        
-        # Combine multiple patterns for clause headings
-        clause_heading_pattern = re.compile(
-            r'(\n|^)\s*'  # Start of line or string, optional spaces
-            r'('
-            r'(\d{1,2}(?:\.\d+)*\.)'  # Numbered: 1. or 2.1. or 3.2.1.
-            r'|([A-Z]\.)'  # Lettered: A.
-            r'|(Article\s+\d+[.:]?)'  # Article 1:
-            r'|(Section\s+\d+[.:]?)'  # Section 2:
-            r'|([A-Z][A-Z\s\-]{3,}(?=\n))'  # ALL CAPS headings
-            r')',
+
+        # Patterns for clause headings
+        numbered_heading_pattern = re.compile(
+            r'^\s*((?:\d{1,2}(?:\.\d+)*\.?|Article\s+\d+[.:]?|Section\s+\d+[.:]?))\s+([A-Z][A-Za-z0-9\s/&,-]+)$',
             re.MULTILINE
         )
-        matches = list(clause_heading_pattern.finditer(text))
+        all_caps_heading_pattern = re.compile(r'^([A-Z][A-Z &()\-]{3,})\s*$', re.MULTILINE)
+
+        # Find all matches for both patterns
+        matches = []
+        for m in numbered_heading_pattern.finditer(text):
+            matches.append({'type': 'numbered', 'start': m.start(), 'end': m.end(), 'title': f"{m.group(1).strip()} {m.group(2).strip()}"})
+        for m in all_caps_heading_pattern.finditer(text):
+            matches.append({'type': 'caps', 'start': m.start(), 'end': m.end(), 'title': m.group(1).strip()})
+        # Remove duplicates (e.g., if a heading matches both patterns)
+        seen = set()
+        unique_matches = []
+        for m in matches:
+            key = (m['start'], m['end'])
+            if key not in seen:
+                unique_matches.append(m)
+                seen.add(key)
+        matches = sorted(unique_matches, key=lambda x: x['start'])
+
         clauses = []
-
         for i, match in enumerate(matches):
-            start = match.end()
-            end = matches[i+1].start() if i+1 < len(matches) else len(text)
-            # Title: use the matched heading, strip newlines and colons
-            title = match.group(2).strip().replace('\n', '').replace(':', '')
+            start = match['end']
+            end = matches[i+1]['start'] if i+1 < len(matches) else len(text)
+            title = match['title'].strip()
             clause_text = text[start:end].strip()
-            if clause_text:
-                clauses.append({'title': title, 'text': clause_text})
-
-        # Fallback: if no matches, try splitting by double newlines (paragraphs)
+            # Clean up tabs and preserve real newlines
+            clause_text = clause_text.replace('\t', ' ')
+            clause_text = clause_text.replace('\\n', '\n')
+            clause_text = clause_text.strip()
+            # Skip tables, signature areas, and fill-in-the-blank areas
+            if (
+                '---TABLE' in clause_text or
+                '|' in clause_text or
+                re.search(r'Signature|Signed by', clause_text, re.IGNORECASE) or
+                re.search(r'_+', clause_text)
+            ):
+                continue
+            # Ensure title and text are not empty or absurd
+            if clause_text and title and len(title) < 200 and len(clause_text) > 10:
+                clauses.append({
+                    "title": title,
+                    "text": clause_text
+                })
+        # Fallback
         if not clauses:
             paragraphs = [p.strip() for p in text.split('\n\n') if len(p.strip()) > 20]
             for i, para in enumerate(paragraphs, 1):
-                clauses.append({'title': f'Clause {i}', 'text': para})
-
-        # Final fallback: if still no clauses, return the whole text as one clause
-        if not clauses:
-            clauses = [{'title': 'Full Document', 'text': text.strip()}]
-
+                para = para.replace('\t', ' ')
+                para = para.replace('\\n', '\n')
+                para = para.strip()
+                if (
+                    '---TABLE' in para or
+                    '|' in para or
+                    re.search(r'Signature|Signed by', para, re.IGNORECASE) or
+                    re.search(r'_+', para)
+                ):
+                    continue
+                first_line = para.split('\n', 1)[0].strip()
+                if len(first_line) > 60:
+                    title = first_line[:60] + '...'
+                else:
+                    title = first_line
+                # Ensure title and text are not empty or absurd
+                if para and title and len(title) < 200 and len(para) > 10:
+                    clauses.append({'title': title, 'text': para})
         return clauses
+
     
     def is_title(self, text: str) -> bool:
         """Check if text is likely a clause title."""
@@ -262,22 +298,16 @@ class DocumentProcessor:
     
     def _extract_clause_title(self, clause_text: str) -> str:
         """
-        Extract a meaningful title for the clause.
-        
-        Args:
-            clause_text (str): The clause text
-            
-        Returns:
-            str: Extracted title
-        """
-        # Try to find a title in the first sentence
+          Extract a meaningful title from clause text (as fallback).
+         """
+        lines = clause_text.splitlines()
+        for line in lines:
+            if line.strip().isupper() and len(line.split()) < 8:
+                return line.strip()
+        # Fallback to first sentence
         first_sentence = clause_text.split('.')[0].strip()
-        
-        # If first sentence is too long, take first 50 chars
-        if len(first_sentence) > 50:
-            return first_sentence[:50] + "..."
-        
-        return first_sentence
+        return first_sentence[:60] + "..." if len(first_sentence) > 60 else first_sentence
+
     
     def _clean_clause_text(self, text: str) -> str:
         """
