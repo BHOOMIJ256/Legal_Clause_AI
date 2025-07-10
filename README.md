@@ -1,7 +1,4 @@
-Read file: README.md
-Here is a **detailed, precise, and professional README** for your Legal Clause AI project, tailored to your workflow, objectives, and audience (including legal and technical users):
 
----
 
 # Legal Clause AI
 
@@ -130,21 +127,3 @@ src/
   Highly non-standard or ambiguous clauses may require manual review.
 - **UI:**  
   A web-based review interface can be added for enhanced collaboration.
-
----
-
-## License
-
-[MIT License] (or your preferred license)
-
----
-
-## Contact
-
-For questions, support, or contributions, please contact:  
-**Your Name / Team**  
-**your.email@domain.com**
-
----
-
-Let me know if you want this as a file, or if you want to add/change any sections!
